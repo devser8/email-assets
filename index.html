@@ -19,20 +19,24 @@
   input[type="text"]:focus,input[type="password"]:focus{border-color:#4a9eff!important;outline:none}
   button{font-family:inherit}
   @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fadeIn 0.3s ease-out}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useCallback, useRef, useEffect } = React;
+const { useState, useCallback, useRef } = React;
 
-// ─── GitHub Config (repo is public, token is stored per-user in browser) ───
+// ─── GitHub Config ───
 const GH_REPO = "devser8/email-assets";
 const GH_API = `https://api.github.com/repos/${GH_REPO}/contents`;
-const GH_PAGES_BASE = "https://devser8.github.io/email-assets";
+// Raw URLs are available INSTANTLY after upload (no GitHub Pages deploy delay)
+const GH_RAW_BASE = `https://raw.githubusercontent.com/${GH_REPO}/main`;
 
 function getStoredToken(){ try{ return localStorage.getItem("gh_token")||""; }catch(e){ return""; } }
 function storeToken(t){ try{ localStorage.setItem("gh_token",t); }catch(e){} }
+function clearStoredToken(){ try{ localStorage.removeItem("gh_token"); }catch(e){} }
 
 // ─── Email Constants ───
 const BG_FALLBACK = "https://steamuserimages-a.akamaihd.net/ugc/844842639220145572/84F945A992EA069EF8FD6D77BF5E644A937D3589/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false";
@@ -54,7 +58,7 @@ function addUtm(baseUrl,campaign){
   return`${baseUrl}${sep}utm_source=mailing&utm_medium=mailing&utm_campaign=${campaign}`;
 }
 
-// ─── GitHub Upload ───
+// ─── GitHub Upload (returns raw URL, available instantly) ───
 async function uploadToGitHub(file, token){
   const base64 = await new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -63,7 +67,7 @@ async function uploadToGitHub(file, token){
     reader.readAsDataURL(file);
   });
 
-  const filename = file.name.toLowerCase().replace(/\s+/g, "-");
+  const filename = file.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9._-]/g, "");
   const path = `img/${filename}`;
   const apiUrl = `${GH_API}/${path}`;
   const headers = {
@@ -72,6 +76,7 @@ async function uploadToGitHub(file, token){
     "Accept": "application/vnd.github.v3+json"
   };
 
+  // Check if file already exists
   let sha = null;
   try {
     const check = await fetch(apiUrl, { headers });
@@ -84,9 +89,12 @@ async function uploadToGitHub(file, token){
   const res = await fetch(apiUrl, { method: "PUT", headers, body: JSON.stringify(body) });
   if(!res.ok){
     const err = await res.json().catch(()=>({}));
+    if(err.message && err.message.includes("Bad credentials")) throw new Error("Token inválido o expirado");
     throw new Error(err.message || `Error ${res.status}`);
   }
-  return `${GH_PAGES_BASE}/img/${filename}`;
+
+  // Return raw URL (instantly available, no Pages deploy wait)
+  return `${GH_RAW_BASE}/${path}`;
 }
 
 // ─── Block Types ───
@@ -250,7 +258,7 @@ function Input({label,value,onChange,placeholder,mono}){
   );
 }
 
-function ImgUploadField({label,value,onChange,token,placeholder}){
+function ImgUploadField({label,value,onChange,token}){
   const[uploading,setUploading]=useState(false);
   const[dragOver,setDragOver]=useState(false);
   const[error,setError]=useState("");
@@ -259,7 +267,7 @@ function ImgUploadField({label,value,onChange,token,placeholder}){
 
   const handleFile=async(file)=>{
     if(!file||!file.type.startsWith("image/"))return;
-    if(!token){setError("Configura tu token de GitHub primero");return;}
+    if(!token){setError("Token de GitHub no configurado");return;}
     setError("");setUploading(true);
     try{
       const url=await uploadToGitHub(file,token);
@@ -291,22 +299,22 @@ function ImgUploadField({label,value,onChange,token,placeholder}){
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             {thumb&&<img src={thumb} alt="" style={{width:40,height:40,objectFit:"cover",borderRadius:4,flexShrink:0}}/>}
             <div style={{flex:1,textAlign:"left",overflow:"hidden"}}>
-              <div style={{fontSize:10,color:"#10b981",fontWeight:700,marginBottom:2}}>✅ Subida a GitHub</div>
+              <div style={{fontSize:10,color:"#10b981",fontWeight:700,marginBottom:2}}>✅ Subida — disponible al instante</div>
               <div style={{fontSize:9,color:"#4a4d55",fontFamily:"monospace",wordBreak:"break-all",lineHeight:1.3}}>{value}</div>
             </div>
-            <span style={{fontSize:9,color:"#6b7280",flexShrink:0}}>Click para cambiar</span>
+            <span style={{fontSize:9,color:"#6b7280",flexShrink:0}}>Cambiar</span>
           </div>
         ):(
           <div>
             <p style={{fontSize:20,margin:"0 0 4px"}}>📎</p>
             <p style={{fontSize:11,color:"#6b7280",fontWeight:600,margin:0}}>Arrastra imagen aquí o haz click</p>
-            <p style={{fontSize:9,color:"#3a3d45",margin:"3px 0 0"}}>Se sube directo al repo de GitHub</p>
+            <p style={{fontSize:9,color:"#3a3d45",margin:"3px 0 0"}}>PNG, JPG, WEBP — se sube al repo de GitHub</p>
           </div>
         )}
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6}}>
         <span style={{fontSize:9,color:"#3a3d45",flexShrink:0}}>o pega URL:</span>
-        <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder||"https://...imagen.png"}
+        <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder="https://...imagen.png"
           style={{flex:1,padding:"5px 8px",fontSize:10,fontFamily:"'SF Mono',monospace",border:"1px solid #1e2028",borderRadius:4,background:"#0d0f13",color:"#e1e4ea",outline:"none",boxSizing:"border-box"}}
         />
       </div>
@@ -377,83 +385,15 @@ function BlockCard({block,index,total,onUpdate,onRemove,onMove,token}){
   );
 }
 
-// ─── Setup Screen ───
-function SetupScreen({onComplete}){
-  const[token,setToken]=useState("");
-  const[testing,setTesting]=useState(false);
-  const[error,setError]=useState("");
-  const[showToken,setShowToken]=useState(false);
-
-  const handleTest=async()=>{
-    if(!token.startsWith("ghp_")){setError("El token debe empezar con ghp_");return;}
-    setTesting(true);setError("");
-    try{
-      const res=await fetch(`https://api.github.com/repos/${GH_REPO}`,{headers:{"Authorization":`token ${token}`}});
-      if(res.ok){storeToken(token);onComplete(token);}
-      else{setError("Token inválido o sin acceso al repo");}
-    }catch(e){setError("Error de conexión");}
-    finally{setTesting(false);}
-  };
-
-  return(
-    <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-      <div style={{maxWidth:420,width:"100%"}}>
-        <div style={{textAlign:"center",marginBottom:24}}>
-          <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,#4a9eff,#7c5cfc)",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:12}}>✉</div>
-          <h1 style={{fontSize:22,fontWeight:800,margin:"0 0 4px",letterSpacing:"-0.02em"}}>Spring Email Builder</h1>
-          <p style={{fontSize:12,color:"#6b7280",margin:0}}>Configuración inicial (solo una vez)</p>
-        </div>
-
-        <div style={{background:"#13151a",borderRadius:12,padding:20,border:"1px solid #1e2028"}}>
-          <h3 style={{fontSize:14,fontWeight:700,margin:"0 0 12px",color:"#f59e0b"}}>🔑 Token de GitHub</h3>
-          <p style={{fontSize:11,color:"#6b7280",lineHeight:1.6,marginBottom:14}}>
-            Para subir imágenes al repo se necesita un Personal Access Token de GitHub. 
-            Se guarda solo en tu navegador, nadie más puede verlo.
-          </p>
-
-          <div style={{background:"#1a1d24",borderRadius:8,padding:12,marginBottom:14,fontSize:10,color:"#6b7280",lineHeight:1.8,border:"1px solid #252830"}}>
-            <strong style={{color:"#4a9eff"}}>Cómo obtener el token:</strong><br/>
-            1. Ir a <strong style={{color:"#e1e4ea"}}>github.com → Settings</strong> (tu perfil)<br/>
-            2. <strong style={{color:"#e1e4ea"}}>Developer Settings → Personal Access Tokens → Tokens (classic)</strong><br/>
-            3. <strong style={{color:"#e1e4ea"}}>Generate new token (classic)</strong><br/>
-            4. Nombre: "email-builder", marcar solo <strong style={{color:"#e1e4ea"}}>repo</strong><br/>
-            5. <strong style={{color:"#e1e4ea"}}>Generate token</strong> y pegar aquí ↓
-          </div>
-
-          <div style={{marginBottom:12}}>
-            <label style={{display:"block",fontSize:10,fontWeight:700,color:"#6b7280",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Token</label>
-            <div style={{display:"flex",gap:6}}>
-              <input type={showToken?"text":"password"} value={token} onChange={e=>setToken(e.target.value)}
-                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                style={{flex:1,padding:"9px 12px",fontSize:13,fontFamily:"'SF Mono',monospace",border:"1px solid #252830",borderRadius:8,background:"#0d0f13",color:"#e1e4ea",outline:"none",boxSizing:"border-box"}}
-              />
-              <button onClick={()=>setShowToken(!showToken)}
-                style={{padding:"0 12px",border:"1px solid #252830",borderRadius:8,background:"#1a1d24",color:"#6b7280",fontSize:13,cursor:"pointer",flexShrink:0}}>
-                {showToken?"🙈":"👁"}
-              </button>
-            </div>
-          </div>
-
-          {error&&<div style={{fontSize:11,color:"#ef4444",marginBottom:10,fontWeight:600}}>{error}</div>}
-
-          <button onClick={handleTest} disabled={!token||testing}
-            style={{width:"100%",padding:"12px",border:"none",borderRadius:8,fontSize:14,fontWeight:800,cursor:token&&!testing?"pointer":"not-allowed",
-              background:token?"linear-gradient(135deg,#4a9eff,#7c5cfc)":"#1e2028",color:token?"#fff":"#3a3d45",transition:"all 0.3s"}}>
-            {testing?"Verificando...":"Conectar →"}
-          </button>
-
-          <p style={{fontSize:9,color:"#3a3d45",marginTop:10,textAlign:"center",lineHeight:1.5}}>
-            El token se guarda en localStorage de tu navegador. No se envía a ningún servidor excepto GitHub.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Main App ───
+// ─── Main App (single component, no routing issues) ───
 function App(){
   const[token,setToken]=useState(getStoredToken);
+  const[showSetup,setShowSetup]=useState(!getStoredToken());
+  const[setupToken,setSetupToken]=useState("");
+  const[setupTesting,setSetupTesting]=useState(false);
+  const[setupError,setSetupError]=useState("");
+  const[showTokenField,setShowTokenField]=useState(false);
+
   const[campaignName,setCampaignName]=useState("");
   const[preheader,setPreheader]=useState("");
   const[blocks,setBlocks]=useState([]);
@@ -462,17 +402,35 @@ function App(){
   const[showPreview,setShowPreview]=useState(true);
   const[showAddMenu,setShowAddMenu]=useState(false);
 
-  // If no token, show setup
-  if(!token) return <SetupScreen onComplete={setToken}/>;
+  // ─── Setup handler ───
+  const handleConnect=async()=>{
+    const t=setupToken.trim();
+    if(!t.startsWith("ghp_")){setSetupError("El token debe empezar con ghp_");return;}
+    setSetupTesting(true);setSetupError("");
+    try{
+      const res=await fetch(`https://api.github.com/repos/${GH_REPO}`,{headers:{"Authorization":`token ${t}`}});
+      if(res.ok){
+        storeToken(t);
+        setToken(t);
+        setShowSetup(false);
+      } else {
+        setSetupError("Token inválido o sin acceso al repo devser8/email-assets");
+      }
+    }catch(e){setSetupError("Error de conexión");}
+    finally{setSetupTesting(false);}
+  };
 
+  const handleLogout=()=>{clearStoredToken();setToken("");setSetupToken("");setShowSetup(true);};
+
+  // ─── Builder handlers ───
   const addBlock=(type)=>{setBlocks([...blocks,createBlock(type)]);setShowAddMenu(false);};
   const removeBlock=(i)=>setBlocks(blocks.filter((_,idx)=>idx!==i));
   const updateBlock=(i,updated)=>setBlocks(blocks.map((b,idx)=>idx===i?updated:b));
   const moveBlock=(i,dir)=>{const j=i+dir;if(j<0||j>=blocks.length)return;const c=[...blocks];[c[i],c[j]]=[c[j],c[i]];setBlocks(c);};
 
   const handleGenerate=useCallback(()=>{
-    const html=generateFullHTML(campaignName,preheader,blocks);
-    setGenerated(html);setShowPreview(true);setCopied(false);
+    setGenerated(generateFullHTML(campaignName,preheader,blocks));
+    setShowPreview(true);setCopied(false);
   },[campaignName,preheader,blocks]);
 
   const handleCopy=useCallback(()=>{
@@ -487,12 +445,62 @@ function App(){
     URL.revokeObjectURL(url);
   },[generated,campaignName]);
 
-  const handleLogout=()=>{try{localStorage.removeItem("gh_token");}catch(e){}setToken("");};
-
   const canGenerate=campaignName&&blocks.length>0;
 
+  // ─── SETUP SCREEN ───
+  if(showSetup){
+    return(
+      <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20}} className="fade-in">
+        <div style={{maxWidth:420,width:"100%"}}>
+          <div style={{textAlign:"center",marginBottom:24}}>
+            <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,#4a9eff,#7c5cfc)",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:12}}>✉</div>
+            <h1 style={{fontSize:22,fontWeight:800,margin:"0 0 4px",letterSpacing:"-0.02em"}}>Spring Email Builder</h1>
+            <p style={{fontSize:12,color:"#6b7280",margin:0}}>Configuración inicial (solo una vez por navegador)</p>
+          </div>
+          <div style={{background:"#13151a",borderRadius:12,padding:20,border:"1px solid #1e2028"}}>
+            <h3 style={{fontSize:14,fontWeight:700,margin:"0 0 12px",color:"#f59e0b"}}>🔑 Token de GitHub</h3>
+            <p style={{fontSize:11,color:"#6b7280",lineHeight:1.6,marginBottom:14}}>
+              Para subir imágenes al repo necesitas un Personal Access Token. Se guarda solo en tu navegador.
+            </p>
+            <div style={{background:"#1a1d24",borderRadius:8,padding:12,marginBottom:14,fontSize:10,color:"#6b7280",lineHeight:1.8,border:"1px solid #252830"}}>
+              <strong style={{color:"#4a9eff"}}>Cómo obtenerlo:</strong><br/>
+              1. <strong style={{color:"#e1e4ea"}}>github.com → tu perfil → Settings</strong><br/>
+              2. <strong style={{color:"#e1e4ea"}}>Developer Settings → Personal Access Tokens → Tokens (classic)</strong><br/>
+              3. <strong style={{color:"#e1e4ea"}}>Generate new token</strong> → nombre: "email-builder" → marcar <strong style={{color:"#e1e4ea"}}>repo</strong><br/>
+              4. Copiar y pegar aquí ↓
+            </div>
+            <div style={{marginBottom:12}}>
+              <label style={{display:"block",fontSize:10,fontWeight:700,color:"#6b7280",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Token</label>
+              <div style={{display:"flex",gap:6}}>
+                <input type={showTokenField?"text":"password"} value={setupToken} onChange={e=>setSetupToken(e.target.value)}
+                  placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                  onKeyDown={e=>{if(e.key==="Enter")handleConnect();}}
+                  style={{flex:1,padding:"9px 12px",fontSize:13,fontFamily:"'SF Mono',monospace",border:"1px solid #252830",borderRadius:8,background:"#0d0f13",color:"#e1e4ea",outline:"none",boxSizing:"border-box"}}
+                />
+                <button onClick={()=>setShowTokenField(!showTokenField)}
+                  style={{padding:"0 12px",border:"1px solid #252830",borderRadius:8,background:"#1a1d24",color:"#6b7280",fontSize:13,cursor:"pointer",flexShrink:0}}>
+                  {showTokenField?"🙈":"👁"}
+                </button>
+              </div>
+            </div>
+            {setupError&&<div style={{fontSize:11,color:"#ef4444",marginBottom:10,fontWeight:600}}>{setupError}</div>}
+            <button onClick={handleConnect} disabled={!setupToken||setupTesting}
+              style={{width:"100%",padding:"12px",border:"none",borderRadius:8,fontSize:14,fontWeight:800,cursor:setupToken&&!setupTesting?"pointer":"not-allowed",
+                background:setupToken?"linear-gradient(135deg,#4a9eff,#7c5cfc)":"#1e2028",color:setupToken?"#fff":"#3a3d45",transition:"all 0.3s"}}>
+              {setupTesting?"Verificando...":"Conectar →"}
+            </button>
+            <p style={{fontSize:9,color:"#3a3d45",marginTop:10,textAlign:"center",lineHeight:1.5}}>
+              El token se guarda en localStorage. No se envía a ningún lugar excepto la API de GitHub.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── BUILDER SCREEN ───
   return(
-    <div style={{height:"100vh",display:"flex",flexDirection:"column"}}>
+    <div style={{height:"100vh",display:"flex",flexDirection:"column"}} className="fade-in">
       {/* Header */}
       <div style={{background:"#0d0f13",borderBottom:"1px solid #1e2028",padding:"14px 20px",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:10,maxWidth:1200,margin:"0 auto"}}>
@@ -514,7 +522,6 @@ function App(){
       <div style={{flex:1,overflow:"hidden",display:"flex",maxWidth:1200,margin:"0 auto",width:"100%"}}>
         {/* Left: Editor */}
         <div style={{width:"440px",flexShrink:0,overflow:"auto",padding:"14px 16px 100px",borderRight:"1px solid #1e2028"}}>
-
           <div style={{background:"#13151a",borderRadius:10,padding:"14px 16px",marginBottom:12,border:"1px solid #1e2028"}}>
             <h3 style={{margin:"0 0 10px",fontSize:13,fontWeight:700,color:"#4a9eff"}}>⚡ Campaña</h3>
             <Input label="Nombre campaña (slug UTM)" value={campaignName} onChange={setCampaignName} placeholder="gran-sale-190126" mono/>
