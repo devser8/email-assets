@@ -67,33 +67,38 @@ async function uploadToGitHub(file, token){
     reader.readAsDataURL(file);
   });
 
-  const filename = file.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9._-]/g, "");
-  const path = `img/${filename}`;
-  const apiUrl = `${GH_API}/${path}`;
+  const rawName = file.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9._-]/g, "");
+  const ext = rawName.includes(".") ? rawName.slice(rawName.lastIndexOf(".")) : "";
+  const baseName = ext ? rawName.slice(0, rawName.lastIndexOf(".")) : rawName;
   const headers = {
     "Authorization": `token ${token}`,
     "Content-Type": "application/json",
     "Accept": "application/vnd.github.v3+json"
   };
 
-  // Check if file already exists
-  let sha = null;
-  try {
-    const check = await fetch(apiUrl, { headers });
-    if(check.ok){ const existing = await check.json(); sha = existing.sha; }
-  } catch(e){}
+  // Find a unique filename: file.png → file-1.png → file-2.png ...
+  let filename = rawName;
+  let attempt = 0;
+  while(true){
+    const checkUrl = `${GH_API}/img/${filename}`;
+    try {
+      const check = await fetch(checkUrl, { headers });
+      if(!check.ok) break; // 404 = name is free
+      attempt++;
+      filename = `${baseName}-${attempt}${ext}`;
+    } catch(e){ break; }
+  }
 
+  const path = `img/${filename}`;
   const body = { message: `Upload ${filename}`, content: base64 };
-  if(sha) body.sha = sha;
 
-  const res = await fetch(apiUrl, { method: "PUT", headers, body: JSON.stringify(body) });
+  const res = await fetch(`${GH_API}/${path}`, { method: "PUT", headers, body: JSON.stringify(body) });
   if(!res.ok){
     const err = await res.json().catch(()=>({}));
     if(err.message && err.message.includes("Bad credentials")) throw new Error("Token inválido o expirado");
     throw new Error(err.message || `Error ${res.status}`);
   }
 
-  // Return raw URL (instantly available, no Pages deploy wait)
   return `${GH_RAW_BASE}/${path}`;
 }
 
