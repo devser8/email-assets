@@ -73,18 +73,112 @@ const BRANDS = {
   suarez: {
     label: "Suárez",
     color: "#e8a020",
-    pending: true,
-    generateHeader: (utm) => `    <!-- HEADER SUÁREZ — pendiente configurar -->
-    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
-      <p style="color:#fff;margin:0;font-size:12px;">Header Suárez — por configurar</p>
-    </header>`,
-    generateFooter: (utm) => `    <!-- FOOTER SUÁREZ — pendiente configurar -->
-    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
-      <p style="color:#fff;margin:0;font-size:11px;">Footer Suárez — por configurar</p>
-    </footer>`,
+    generateHeader: (utm) => `    <!-- HEADER -->
+    <table class="srz-logo-mobile" border="0" cellpadding="0" cellspacing="0" width="100%" align="center" bgcolor="#FFFFFF">
+        <tr>
+            <td>
+                <table class="srz-logo-mobile" border="0" cellpadding="0" cellspacing="0" width="600" align="center" style="background-color:#292929; max-width: 100%;">
+                    <tr>
+                        <td bgcolor="" style="text-align: center; height: 34px; vertical-align: middle; " width="100%" valign="top">
+                            <a href="${addUtm("https://suarezclothing.com",utm)}" target="_blank" title="Suarez Colombia" style="text-align:center; outline: none; color: #FFF;"><img width="100" style="margin:9px auto;" alt="Suarez Colombia" src="https://suarez.vteximg.com.br/arquivos/SRZ_LOGO_BLANCO_CORREO2.png"></a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <!-- /HEADER -->`,
+    generateFooter: (utm) => `    <table border="0" class="container" cellpadding="0" cellspacing="0" width="100%" bgcolor="#EEEEEF" style="font-family: Arial, sans-serif;">
+        <tr>
+            <td bgcolor="#FFF" align="center">
+                <!--Footer redes sociales-->
+                <table align="center" border="0" class="srz-container" cellpadding="0" cellspacing="0" width="600" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #222222">
+                    <tbody>
+                        <tr>
+                            <td width="100%" class="srz-container" style="display:flex; text-align:center; color:#292929; padding: 15px 0 0; font-size: 10px; text-transform: uppercase; font-weight: bold; margin: 0 auto; text-align: center;">
+                                <a class="srz-fb-mobile" href="${addUtm("https://suarezclothing.com/",utm)}" target="_blank" style="margin:0 auto; text-align: center; vertical-align: middle;"><img width="100px" src="https://suarez.vteximg.com.br/arquivos/SRZ_LOGO_BLANCO_CORREO2.png" alt="Logo" style="display: inline-block;padding: 8px;"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="100%" class="srz-container" style="display:flex; text-align:center; color:#292929; padding: 15px 0 0; font-size: 10px; text-transform: uppercase; font-weight: bold; margin: 0 auto; text-align: center;">
+                                <p style="margin: 0 auto; font-size:14px; color: #fff; font-family:Arial, Helvetica, sans-serif; font-weight: bold;">SÍGUENOS</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="50%" class="srz-container" style="display:flex; text-align:center; color:#292929; padding: 15px 0 0; font-size: 10px; text-transform: uppercase; font-weight: bold; margin: 0 auto;">
+                                <a class="srz-fb-mobile" href="https://www.facebook.com/suarezclothing" target="_blank" style="margin:0 auto; margin-left: 0; text-align: center; vertical-align: middle;"><img width="32" src="https://suarez.vteximg.com.br/arquivos/fb-icon.png" alt="Whatsapp" style="display: inline-block;padding: 8px;"></a>
+                                <a href="https://www.instagram.com/suarezclothing/" target="_blank" style="margin:0 auto; text-align: center; vertical-align: middle;"><img width="32" src="https://suarez.vteximg.com.br/arquivos/ig-icon.png" alt="Mail" style="display: inline-block;padding: 8px;"></a>
+                                <a href="https://twitter.com/suarezclothing" target="_blank" style="margin:0 auto; text-align: center; vertical-align: middle;"><img width="32" src="https://suarez.vteximg.com.br/arquivos/tw-icon.png" alt="Facebook" style="display: inline-block;padding: 8px; padding-top: 12px;"></a>
+                                <a href="https://www.youtube.com/channel/UCaLH-9-UVNwr7SqzaGmecuQ" target="_blank" style="margin:0 auto; text-align: center; vertical-align: middle;"><img width="32" src="https://suarez.vteximg.com.br/arquivos/yt-icon.png" alt="Instagram" style="display: inline-block;padding: 8px;margin-top: 5px;"></a>
+                                <a href="https://www.strava.com/athletes/74578300" target="_blank" style="margin:0 auto; text-align: center; vertical-align: middle;"><img width="32" src="https://suarez.vteximg.com.br/arquivos/strava-icon.png" alt="Instagram" style="display: inline-block;padding: 8px;"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="100%" class="srz-container srz-help-mobile" style="text-align:center; color:#292929; padding: 7px 0px; font-size: 14.22px; font-weight: bold;">
+                                <p class="srz-contact-title-mobile" style="font-size:14px;color:#fff;font-family: Arial, Helvetica, sans-serif;text-decoration: none; font-weight: bold;margin-top: 25px; padding: 0; margin-bottom: 10px;">CONTACTO</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table align="center" border="0" class="srz-container" cellpadding="0" cellspacing="0" width="600" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #222222;">
+                    <tbody>
+                        <tr>
+                            <td class="srz-contact-mobbile-container srz-wp" style="text-align:center; color:#fff; font-size: 14.22px;">
+                                <p class="srz-contact-mobile" style="font-size:12.64px;color:#fff;font-family: 'Quicksand', sans-serif; padding-bottom: 30px; font-weight: 400;"><img src="https://suarez.vteximg.com.br/arquivos/wp-icon.png" class="srz-contact-icon-mobile" alt="Whatsapp" style="vertical-align: bottom;padding-right: 4px;"><a href="#" target="_blank" rel="noopener noreferrer" style="color:#fff !important; text-decoration:none !important;">(+57) 316 832 91 24</a></p>
+                            </td>
+                            <td class="srz-contact-mobbile-container srz-tel" style="text-align:center; color:#fff; font-size: 14.22px;">
+                                <p class="srz-contact-mobile" style="font-size:12.64px;color:#fff;font-family: 'Quicksand', sans-serif; padding-bottom: 30px; font-weight: 400;"><img src="https://suarez.vteximg.com.br/arquivos/phone-icon.png" class="srz-contact-icon-mobile" alt="Telefono" style="vertical-align: bottom;padding-right: 4px;"><a href="#" target="_blank" rel="noopener noreferrer" style="color:#fff !important; text-decoration:none !important;">(+57 604) 322 55 60</a></p>
+                            </td>
+                            <td class="srz-contact-mobbile-container srz-mail" style="text-align:center; color:#fff; font-size: 14.22px; width: 40%;">
+                                <p class="srz-contact-mobile" style="font-size:12.64px;color:#fff;font-family: 'Quicksand', sans-serif; padding-bottom: 30px; font-weight: 400;"><img src="https://suarez.vteximg.com.br/arquivos/mail-icon.png" class="srz-contact-icon-mobile" alt="Correo" style="vertical-align: bottom;padding-right: 4px;"><a href="mailto:servicioalcliente@suarez.com.co" target="_blank" rel="noopener noreferrer" style="color:#fff !important; text-decoration:none !important;">servicioalcliente@suarez.com.co</a></p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!--/Footer redes sociales-->
+                <!--MENU-->
+                <table width="600" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="#FFF" style="border-top: 1px solid #C5C6C8; max-width: 100%; padding: 0 10px;" class="srz-container">
+                    <tbody>
+                        <tr>
+                            <td style="width:30%; font-family: 'Quicksand', sans-serif;background-color:#222222; padding-top:4px; padding-bottom:4px;text-align: center; margin-top: 25px;">
+                                <a class="menu-item-mobile" href="${addUtm("https://suarezclothing.com/preguntas-frecuentes",utm)}" target="_blank" style="text-decoration: none; font-weight: 400;font-size: 14px;color: #fff !important; line-height: 15px;"><p style="margin: 12px 0;color: #fff !important;">Preguntas frecuentes</p></a>
+                            </td>
+                            <td style="width:30%; font-family: 'Quicksand', sans-serif;background-color:#222222; padding-top:4px; padding-bottom:4px;text-align: center;">
+                                <a class="menu-item-mobile" href="${addUtm("https://suarezclothing.com/terminos-y-condiciones",utm)}" target="_blank" style="text-decoration: none; font-weight: 400;font-size: 14px;color: #fff !important; line-height: 15px;"><p style="margin: 12px 0;color: #fff !important;">Terminos y condiciones</p></a>
+                            </td>
+                            <td class="legal-mobile" style="width:30%; font-family: 'Quicksand', sans-serif;background-color:#222222; padding-top:4px; padding-bottom:4px;text-align: center;">
+                                <a class="menu-item-mobile" href="${addUtm("https://suarezclothing.com/politica-de-privacidad-y-condiciones-de-uso",utm)}" target="_blank" style="text-decoration: none; font-weight: 400;font-size: 14px;color: #fff !important; line-height: 15px;"><p style="margin: 25px 0;color: #fff !important;">Aviso legal</p></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table width="600" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="#FFF" style="max-width: 100%; padding: 0 10px;" class="srz-container">
+                    <tbody>
+                        <tr>
+                            <td style="width:30%; font-family: 'Quicksand', sans-serif;background-color:#222222; padding-top:4px; padding-bottom:4px;text-align: center; margin-top: 25px;">
+                                <p style="margin: 0px 0 45px;color: #D4D4D4 !important; font-size: 10px; padding: 0 20px;">Suarez ©2023</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>`,
     headerStyle: `
-      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
-      footer { background-color: #1a1a1a; width: 600px; }`,
+      header { width: 600px; background-color: #292929; }
+      footer { background-color: #222222; width: 600px; }
+      @media screen and (max-width: 640px) {
+        .srz-logo-mobile { width: 100% !important; }
+        .srz-container { width: 100% !important; }
+        .srz-fb-mobile { margin-left: auto !important; }
+        .srz-help-mobile { padding-bottom: 0 !important; }
+        .srz-contact-title-mobile { margin: 5px auto !important; }
+        .srz-contact-mobbile-container { width: 50% !important; }
+        .srz-contact-mobile { font-size: 6px !important; }
+        .srz-contact-icon-mobile { width: 8px !important; padding-right: 0 !important; margin-bottom: 3px !important; }
+        .srz-mail { width: 40% !important; }
+        .srz-wp, .srz-tel { width: 30% !important; }
+      }`,
   },
   challenger: {
     label: "Challenger",
@@ -159,18 +253,61 @@ const BRANDS = {
   gallery: {
     label: "Gallery",
     color: "#a855f7",
-    pending: true,
-    generateHeader: (utm) => `    <!-- HEADER GALLERY — pendiente configurar -->
-    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
-      <p style="color:#fff;margin:0;font-size:12px;">Header Gallery — por configurar</p>
-    </header>`,
-    generateFooter: (utm) => `    <!-- FOOTER GALLERY — pendiente configurar -->
-    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
-      <p style="color:#fff;margin:0;font-size:11px;">Footer Gallery — por configurar</p>
-    </footer>`,
+    generateHeader: (utm) => `    <!---Header-->
+    <table border="0" cellspacing="0" cellpadding="0" width="600" align="center">
+        <tr valign="top" style="background: #ffffff; width: 600px;">
+            <td>
+                <a href="${addUtm("https://www.gallerycolombia.com/",utm)}">
+                    <img src="https://gallery.vteximg.com.br/arquivos/header-mails-gallery.png" alt="Gallery" style="display:block; width:600px;">
+                </a>
+            </td>
+        </tr>
+    </table>`,
+    generateFooter: (utm) => `    <!---Footer-->
+    <table border="0" cellspacing="0" cellpadding="0" width="600" align="center">
+        <tr>
+            <td align="center" style="background-image: url(https://gallery.vteximg.com.br/arquivos/fondo-footer-mailings.png); padding: 10px 20px;">
+                <img src="https://gallery.vteximg.com.br/arquivos/LOGO-mailing.png" alt="Gallery">
+                <table border="0" cellspacing="0" cellpadding="0" align="center">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a href="https://wa.me/57" target="_blank">
+                                    <img src="https://gallery.vteximg.com.br/arquivos/mdi_whatsapp.png" alt="Whatsapp Icono" style="width: 14.4px; margin: 0px 7px;">
+                                </a>
+                            </td>
+                            <td>
+                                <a href="https://www.facebook.com/gallerycolombia" target="_blank">
+                                    <img src="https://gallery.vteximg.com.br/arquivos/ri_facebook-fill.png" alt="Facebook Icono" style="width: 14.4px; margin: 0px 7px;">
+                                </a>
+                            </td>
+                            <td>
+                                <a href="https://www.youtube.com/@gallerycolombia" target="_blank">
+                                    <img src="https://gallery.vteximg.com.br/arquivos/mdi_youtube.png" alt="Youtube Icono" style="width: 14.4px; margin: 0px 7px;">
+                                </a>
+                            </td>
+                            <td>
+                                <a href="https://www.instagram.com/gallerycolombia" target="_blank">
+                                    <img src="https://gallery.vteximg.com.br/arquivos/iconoir_instagram.png" alt="Instagram Icono" style="width: 14.4px; margin: 0px 7px;">
+                                </a>
+                            </td>
+                            <td>
+                                <a href="https://www.tiktok.com/@gallerycolombia" target="_blank">
+                                    <img src="https://gallery.vteximg.com.br/arquivos/ic_baseline-tiktok.png" alt="Tiktok Icono" style="width: 14.4px; margin: 0px 7px;">
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="color: #FFF; text-align: center; font-size: 8.4px; font-style: normal; font-weight: 400;">
+                    ©2025 Gallery - Todos los derechos reservados
+                </p>
+            </td>
+        </tr>
+    </table>`,
     headerStyle: `
-      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
-      footer { background-color: #1a1a1a; width: 600px; }`,
+      header { width: 600px; background-color: #ffffff; }
+      footer { width: 600px; }`,
   },
   almacenessi: {
     label: "Almacenes Sí",
@@ -191,49 +328,168 @@ const BRANDS = {
   rosen: {
     label: "Rosen",
     color: "#f43f5e",
-    pending: true,
-    generateHeader: (utm) => `    <!-- HEADER ROSEN — pendiente configurar -->
-    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
-      <p style="color:#fff;margin:0;font-size:12px;">Header Rosen — por configurar</p>
-    </header>`,
-    generateFooter: (utm) => `    <!-- FOOTER ROSEN — pendiente configurar -->
-    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
-      <p style="color:#fff;margin:0;font-size:11px;">Footer Rosen — por configurar</p>
-    </footer>`,
+    generateHeader: (utm) => `    <!--HEADER-->
+    <table style="padding: 0; font-family: Arial, sans-serif; margin: auto; border-spacing: inherit; color: #2f353d; width: 716px; background: #fff;">
+        <tbody style="margin: 0; padding: 0; font-family: Arial, sans-serif; border: solid 1px #000;">
+            <tr style="margin: 0; padding: 0; font-family: Arial, sans-serif; width: 100%;">
+                <th style="margin: 0; padding: 0; font-family: Arial, sans-serif; width: 100%; height: 224px; background: #38484d;">
+                    <a href="${addUtm("https://www.rosen.com.co",utm)}" target="_blank">
+                        <img src="https://rosenco.vteximg.com.br/arquivos/logo-verde-rosen.png" alt="Rosen.com.co" style="margin: 0; padding: 0; font-family: Arial, sans-serif; width: 150px; height: 70px;">
+                    </a>
+                </th>
+            </tr>
+            <tr style="margin: 0; padding: 0; font-family: Arial, sans-serif; width: 100%;">
+                <td style="margin: 0; font-family: Arial, sans-serif; padding: 42px 42px 35px; width: 100%; text-align: center;">
+                    <h1 style="margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 24px; color: #2f353d; font-weight: 900;">¡Orden Recibida!</h1>
+                    <p style="padding: 0; font-family: Arial, sans-serif; margin: 12px 0px; font-size: 13px; line-height: 19px; color: #353535; font-weight: 500;">Realizada el: {{formatDate orders.0.creationDate}}</p>
+                    <span style="padding: 0; font-family: Arial, sans-serif; color: #2f353d; font-weight: 900; padding-top: 13px; width: 100px; border-bottom: 1px solid #2f353d; height: 1px; display: block; margin: 0 auto;"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!--/HEADER-->`,
+    generateFooter: (utm) => `    <!--FOOTER-->
+    <table style="padding: 0; font-family: Arial, sans-serif; margin: auto; border-spacing: inherit; color: #2f353d; width: 716px; background: #fff;">
+        <tr style="margin: 0; padding: 0; font-family: Arial, sans-serif; width: 100%;">
+            <td style="margin: 0; font-family: Arial, sans-serif; display: block; text-align: center; padding: 50px;">
+                <h1 style="margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 24px; color: #2f353d; font-weight: 900;">Gracias por elegir <b style="margin: 0; padding: 0; font-family: Arial, sans-serif; color: #2f353d; font-weight: 900; border: none; display: inline; letter-spacing: 0; font-size: 23px; text-transform: initial;">Rosen.com.co</b></h1>
+                <a href="${addUtm("https://www.rosen.com.co",utm)}" target="_blank" style="font-family: Arial, sans-serif; padding: 0; text-decoration: none; display: block; width: 325px; color: #323232; font-weight: 100; margin: 33px auto 0px auto; text-align: center; border: 1px solid #bfbfbf; font-size: 11px; letter-spacing: .2em; position: relative; line-height: 50px; text-transform: uppercase;">IR A Rosen.com.co</a>
+            </td>
+        </tr>
+    </table>
+    <!--/FOOTER-->`,
     headerStyle: `
-      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
-      footer { background-color: #1a1a1a; width: 600px; }`,
+      header { width: 716px; background-color: #fff; }
+      footer { width: 716px; background-color: #fff; }`,
   },
   springstep: {
     label: "Spring Step",
     color: "#06b6d4",
-    pending: true,
-    generateHeader: (utm) => `    <!-- HEADER SPRING STEP — pendiente configurar -->
-    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
-      <p style="color:#fff;margin:0;font-size:12px;">Header Spring Step — por configurar</p>
-    </header>`,
-    generateFooter: (utm) => `    <!-- FOOTER SPRING STEP — pendiente configurar -->
-    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
-      <p style="color:#fff;margin:0;font-size:11px;">Footer Spring Step — por configurar</p>
-    </footer>`,
+    generateHeader: (utm) => `    <!--HEADER-->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="box-shadow: 1px 1px 2px rgb(0 0 0 / 10%);">
+        <tr>
+            <td align="center">
+                <div style="width: 90%; margin: auto; text-align: center; padding: 8px 0;">
+                    <a href="${addUtm("https://www.springstep.com/",utm)}" style="text-decoration: none;">
+                        <img title="logo" style="width: auto; height: auto; max-width: 150px;" src="https://springstep.vtexassets.com/arquivos/ss-logo.png" alt="logo-springstep">
+                    </a>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <!--/HEADER-->`,
+    generateFooter: (utm) => `    <!--FOOTER-->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr style="box-sizing: border-box; margin-top: 30px;" bgcolor="#f3f2f2">
+            <td align="center">
+                <div style="padding: 1rem 30px; margin: 0 0 1rem 0; font-family: Lato, sans-serif;">
+                    <!-- Logo -->
+                    <div style="margin-bottom: 10px;">
+                        <img src="https://springstep.vtexassets.com/arquivos/ss-logo.png" alt="Spring Step" style="max-height: 35px;" />
+                    </div>
+                    <!-- Contacto -->
+                    <div>
+                        <p style="font-size: 14px; margin: 0; margin-top: 10px; color: #003F7B;">(+57) 311 5968258</p>
+                        <span style="color: #003F7B; text-decoration: underline; font-size: 14px; margin: 0; margin-top: 10px;">ventasonline&#64;springstep&#46;com</span>
+                    </div>
+                    <!-- Redes sociales -->
+                    <div style="margin-top: 10px;">
+                        <p style="font-weight: bold; font-size: 14px; margin-top: 20px; margin-bottom: 20px; color: #003F7B;">Síguenos en</p>
+                        <div>
+                            <a href="https://www.facebook.com/Springstepoficial" style="text-decoration: none; padding: 0px 5px;">
+                                <img title="Facebook" src="https://springstep.vteximg.com.br/arquivos/Social%20Icons.png" alt="Facebook" width="24" height="24" />
+                            </a>
+                            <a href="https://www.instagram.com/springstepcolombia/" style="text-decoration: none; padding: 0px 5px;">
+                                <img title="Instagram" src="https://springstep.vteximg.com.br/arquivos/Group%2013.png" alt="Instagram" width="24" height="24" />
+                            </a>
+                            <a href="https://www.linkedin.com/company/calzado-spring-step/" style="text-decoration: none; padding: 0px 5px;">
+                                <img title="Linkedin" src="https://springstep.vteximg.com.br/arquivos/Group%2012.png" alt="LinkedIn" width="24" height="24" />
+                            </a>
+                            <a href="https://www.tiktok.com/@springstepcolombia" style="text-decoration: none; padding: 0px 5px;">
+                                <img title="Tiktok" src="https://springstep.vteximg.com.br/arquivos/Group%2011.png" alt="Tiktok" width="24" height="24" />
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Línea -->
+                    <hr style="margin: 20px 0; border: none; border-top: 1px solid #cccccc;" />
+                    <!-- Derechos -->
+                    <div style="font-size: 12px; color: #003F7B;">
+                        © 2025 Spring Step. Todos los derechos reservados
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <!--/FOOTER-->`,
     headerStyle: `
-      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
-      footer { background-color: #1a1a1a; width: 600px; }`,
+      a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+      @media (max-width: 600px) { img { max-width: 100% !important; height: auto !important; } }`,
   },
   tramontina: {
     label: "Tramontina",
     color: "#f59e0b",
-    pending: true,
-    generateHeader: (utm) => `    <!-- HEADER TRAMONTINA — pendiente configurar -->
-    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
-      <p style="color:#fff;margin:0;font-size:12px;">Header Tramontina — por configurar</p>
-    </header>`,
-    generateFooter: (utm) => `    <!-- FOOTER TRAMONTINA — pendiente configurar -->
-    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
-      <p style="color:#fff;margin:0;font-size:11px;">Footer Tramontina — por configurar</p>
-    </footer>`,
+    generateHeader: (utm) => `    <!--HEADER-->
+    <table align="center" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff" style="padding-bottom: 25px">
+        <tr>
+            <td>
+                <table align="center" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#1a1a1a">
+                    <tr>
+                        <td>
+                            <table align="center" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#1a1a1a" style="max-width:600px">
+                                <tr>
+                                    <td>
+                                        <table align="center" cellspacing="0" cellpadding="0" border="0" bgcolor="#1a1a1a" style="margin-bottom: 20px; margin-top: 20px">
+                                            <tr>
+                                                <td>
+                                                    <a href="${addUtm("https://www.tramontinastore.com.co",utm)}" target="_blank"><img src="https://tramontinastoreco.vteximg.com.br/arquivos/logo-tramontina.png" alt="Tramontina" width="114" height="79" border="0"></a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <!--/HEADER-->`,
+    generateFooter: (utm) => `    <!-- RODAPE-->
+    <table align="center" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff" style="padding-top: 25px">
+        <tr>
+            <td>
+                <table align="center" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#1a1a1a">
+                    <tr>
+                        <td>
+                            <table align="center" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#1a1a1a" style="max-width:600px">
+                                <tr>
+                                    <td>
+                                        <table align="center" cellspacing="0" cellpadding="0" border="0" bgcolor="#1a1a1a" style="margin-bottom: 43px; margin-top: 43px">
+                                            <tr>
+                                                <td style="padding-left: 10px; padding-right: 10px">
+                                                    <a href="https://www.facebook.com/TramontinaLatinoamerica/" title="Facebook Tramontina" target="_blank"><img src="https://tramontinastoreco.vteximg.com.br/arquivos/icon-facebook.png" alt="Facebook Tramontina" height="34" width="34" border="0"></a>
+                                                </td>
+                                                <td style="padding-left: 10px; padding-right: 10px">
+                                                    <a href="https://www.instagram.com/tramontinaoficial/" title="Instagram Tramontina" target="_blank"><img src="https://tramontinastoreco.vteximg.com.br/arquivos/icon-instagram.png" alt="Instagram Tramontina" height="34" width="34" border="0"></a>
+                                                </td>
+                                                <td style="padding-left: 10px; padding-right: 10px">
+                                                    <a href="https://www.youtube.com/user/tramontina" title="Youtube Tramontina" target="_blank"><img src="https://tramontinastoreco.vteximg.com.br/arquivos/icon-youtube.png" alt="Youtube Tramontina" height="34" width="34" border="0"></a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <!-- /RODAPE-->`,
     headerStyle: `
-      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
+      header { width: 600px; background-color: #1a1a1a; }
       footer { background-color: #1a1a1a; width: 600px; }`,
   },
 };
