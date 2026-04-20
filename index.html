@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Spring Email Builder</title>
+<title>Email Builder — Gravity</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
@@ -40,13 +40,194 @@ function clearStoredToken(){ try{ localStorage.removeItem("gh_token"); }catch(e)
 
 // ─── Email Constants ───
 const BG_FALLBACK = "https://steamuserimages-a.akamaihd.net/ugc/844842639220145572/84F945A992EA069EF8FD6D77BF5E644A937D3589/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false";
-const LOGO_URL = "https://colchonesspring.vteximg.com.br/arquivos/momentos-new-logo.png";
-const FOOTER_LOGO = "https://colchonesspring.vteximg.com.br/arquivos/SPRING%20BLACO.png";
-const SOCIAL = {
-  facebook:{url:"https://www.facebook.com/ColchonesSpring/",img:"https://colchonesspring.vteximg.com.br/arquivos/facebooknew2025.png"},
-  youtube:{url:"https://www.youtube.com/user/ColchonesSpringCol",img:"https://colchonesspring.vteximg.com.br/arquivos/youtubenew2025.png"},
-  tiktok:{url:"https://www.tiktok.com/@colchonesspringcol",img:"https://colchonesspring.vteximg.com.br/arquivos/tiktoknew2025.png"},
-  instagram:{url:"https://www.instagram.com/colchonesspring/",img:"https://colchonesspring.vteximg.com.br/arquivos/instagramnew2025.png"},
+
+// ─── Brand Configs ───
+// Each brand defines generateHeader(utm) and generateFooter(utm) functions
+// that return the raw HTML string for the header/footer sections.
+const BRANDS = {
+  spring: {
+    label: "Colchones Spring",
+    color: "#4a9eff",
+    generateHeader: (utm) => `    <header>
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td class="logo">
+            <a href="${addUtm("https://www.colchonesspring.com.co/",utm)}">
+              <img src="https://colchonesspring.vteximg.com.br/arquivos/momentos-new-logo.png" alt="Logo" class="logo" />
+            </a>
+          </td>
+        </tr>
+      </table>
+    </header>`,
+    generateFooter: (utm) => `    <footer>
+      <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #1a1a1a; color: #ffffff; font-family: 'Poppins', sans-serif; font-size: 11px; line-height: 1.6;">
+        <tr>
+          <td style="padding: 65px 30px;" valign="top" width="140">
+            <a href="${addUtm("https://www.colchonesspring.com.co/",utm)}" style="text-decoration: none;">
+              <img src="https://colchonesspring.vteximg.com.br/arquivos/SPRING%20BLACO.png" alt="Spring" style="width: 100px; display: block; margin-bottom: 4px;" />
+            </a>
+          </td>
+          <td style="padding: 20px 15px;" valign="top" width="260">
+            <p style="margin: 0 0 2px; font-weight: 700; font-size: 12px;">Contáctenos</p>
+            <p style="margin: 0 0 2px; color: #cccccc;">Servicio al cliente, teléfono de contacto</p>
+            <p style="margin: 0 0 10px; color: #ffffff;">(601) 307 70 53</p>
+            <p style="margin: 0 0 6px; font-weight: 700;">Síguenos en nuestras redes:</p>
+            <div>
+              <a href="https://www.facebook.com/ColchonesSpring/" style="text-decoration: none; margin-right: 8px;"><img src="https://colchonesspring.vteximg.com.br/arquivos/facebooknew2025.png" alt="Facebook" style="width: 22px; height: 22px; vertical-align: middle;"/></a>
+              <a href="https://www.youtube.com/user/ColchonesSpringCol" style="text-decoration: none; margin-right: 8px;"><img src="https://colchonesspring.vteximg.com.br/arquivos/youtubenew2025.png" alt="YouTube" style="width: 22px; height: 22px; vertical-align: middle;"/></a>
+              <a href="https://www.tiktok.com/@colchonesspringcol" style="text-decoration: none; margin-right: 8px;"><img src="https://colchonesspring.vteximg.com.br/arquivos/tiktoknew2025.png" alt="TikTok" style="width: 22px; height: 22px; vertical-align: middle;"/></a>
+              <a href="https://www.instagram.com/colchonesspring/" style="text-decoration: none;"><img src="https://colchonesspring.vteximg.com.br/arquivos/instagramnew2025.png" alt="Instagram" style="width: 22px; height: 22px; vertical-align: middle;"/></a>
+            </div>
+          </td>
+          <td style="padding: 20px 25px 20px 15px;" valign="top" width="200">
+            <p style="margin: 0 0 2px; font-weight: 700; font-size: 12px;">Escríbenos a:</p>
+            <a href="mailto:scliente@spring.com.co" style="color: #ffffff; text-decoration: none;">scliente@spring.com.co</a>
+            <p style="margin: 14px 0 0; color: #cccccc;">Si deseas cancelar la<br/>suscripción <a href="https://momentos.spring.com.co/desuscribirse?email=::subscriber.email::" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: 700;">haz clic aquí</a></p>
+          </td>
+        </tr>
+      </table>
+    </footer>`,
+    headerStyle: `
+      header { height: 39px; width: 600px; background-color: #1a1a1a; color: white; }
+      .logo { width: 58px; height: 23px; flex-shrink: 0; padding: 4px 135px; }
+      footer { background-color: #1a1a1a; width: 600px; }`,
+  },
+  suarez: {
+    label: "Suárez",
+    color: "#e8a020",
+    pending: true,
+    generateHeader: (utm) => `    <!-- HEADER SUÁREZ — pendiente configurar -->
+    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
+      <p style="color:#fff;margin:0;font-size:12px;">Header Suárez — por configurar</p>
+    </header>`,
+    generateFooter: (utm) => `    <!-- FOOTER SUÁREZ — pendiente configurar -->
+    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
+      <p style="color:#fff;margin:0;font-size:11px;">Footer Suárez — por configurar</p>
+    </footer>`,
+    headerStyle: `
+      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
+      footer { background-color: #1a1a1a; width: 600px; }`,
+  },
+  challenger: {
+    label: "Challenger",
+    color: "#ef4444",
+    generateHeader: (utm) => `    <header style="background:black;border-bottom:1px solid #DEDEDE;">
+      <div style="width:600px;margin:0 auto;">
+        <div style="width:140px;padding:30px;margin:0 auto;">
+          <a href="${addUtm("https://www.challenger.com.co/",utm)}" style="display:block;margin:0 auto;">
+            <img src="https://challengerco.vteximg.com.br/arquivos/challenger-logo-triggers.png" style="width:140px;display:block;margin:0 auto;" alt="Challenger"/>
+          </a>
+        </div>
+      </div>
+    </header>`,
+    generateFooter: (utm) => `    <footer style="background-color:#003494;padding:20px;">
+      <div style="width:600px;min-height:110px;display:flex;align-items:center;">
+        <div style="width:36%;text-align:center;">
+          <a href="${addUtm("https://www.challenger.com.co/",utm)}">
+            <img src="https://challengerco.vteximg.com.br/arquivos/challenger-logo-triggers.png" alt="Challenger" style="max-width:54%;height:auto;display:block;margin:0 auto;"/>
+          </a>
+        </div>
+        <div style="width:38%;color:white;font-size:13px;font-weight:600;line-height:1.6;">
+          <span>Contáctenos</span><br/>
+          <span style="font-weight:300;">Servicio al cliente, teléfono de contacto</span><br/>
+          <a href="tel:+6014256000" style="font-weight:300;text-decoration:none;color:white;">(601) 425 6000</a><br/>
+          <div style="margin-top:5px;">
+            <span>Síguenos en nuestras redes:</span><br/>
+            <a href="https://www.facebook.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-face.png" alt="Facebook" style="width:22px;height:auto;margin-right:4px;vertical-align:middle;"/></a>
+            <a href="https://www.instagram.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-inst.png" alt="Instagram" style="width:22px;height:auto;margin-right:4px;vertical-align:middle;"/></a>
+            <a href="https://www.youtube.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-yt.png" alt="YouTube" style="width:22px;height:auto;vertical-align:middle;"/></a>
+          </div>
+        </div>
+        <div style="width:26%;color:white;font-size:13px;line-height:1.6;font-weight:700;">
+          Escríbenos a:<br/>
+          <a href="mailto:scliente@challenger.com.co" style="font-weight:300;color:white;text-decoration:none;">scliente@challenger.com.co</a>
+        </div>
+      </div>
+    </footer>`,
+    headerStyle: `
+      header { background: black; border-bottom: 1px solid #DEDEDE; width: 600px; }
+      footer { background-color: #003494; width: 600px; }`,
+  },
+  gallery: {
+    label: "Gallery",
+    color: "#a855f7",
+    pending: true,
+    generateHeader: (utm) => `    <!-- HEADER GALLERY — pendiente configurar -->
+    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
+      <p style="color:#fff;margin:0;font-size:12px;">Header Gallery — por configurar</p>
+    </header>`,
+    generateFooter: (utm) => `    <!-- FOOTER GALLERY — pendiente configurar -->
+    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
+      <p style="color:#fff;margin:0;font-size:11px;">Footer Gallery — por configurar</p>
+    </footer>`,
+    headerStyle: `
+      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
+      footer { background-color: #1a1a1a; width: 600px; }`,
+  },
+  almacenessi: {
+    label: "Almacenes Sí",
+    color: "#10b981",
+    pending: true,
+    generateHeader: (utm) => `    <!-- HEADER ALMACENES SÍ — pendiente configurar -->
+    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
+      <p style="color:#fff;margin:0;font-size:12px;">Header Almacenes Sí — por configurar</p>
+    </header>`,
+    generateFooter: (utm) => `    <!-- FOOTER ALMACENES SÍ — pendiente configurar -->
+    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
+      <p style="color:#fff;margin:0;font-size:11px;">Footer Almacenes Sí — por configurar</p>
+    </footer>`,
+    headerStyle: `
+      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
+      footer { background-color: #1a1a1a; width: 600px; }`,
+  },
+  rosen: {
+    label: "Rosen",
+    color: "#f43f5e",
+    pending: true,
+    generateHeader: (utm) => `    <!-- HEADER ROSEN — pendiente configurar -->
+    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
+      <p style="color:#fff;margin:0;font-size:12px;">Header Rosen — por configurar</p>
+    </header>`,
+    generateFooter: (utm) => `    <!-- FOOTER ROSEN — pendiente configurar -->
+    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
+      <p style="color:#fff;margin:0;font-size:11px;">Footer Rosen — por configurar</p>
+    </footer>`,
+    headerStyle: `
+      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
+      footer { background-color: #1a1a1a; width: 600px; }`,
+  },
+  springstep: {
+    label: "Spring Step",
+    color: "#06b6d4",
+    pending: true,
+    generateHeader: (utm) => `    <!-- HEADER SPRING STEP — pendiente configurar -->
+    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
+      <p style="color:#fff;margin:0;font-size:12px;">Header Spring Step — por configurar</p>
+    </header>`,
+    generateFooter: (utm) => `    <!-- FOOTER SPRING STEP — pendiente configurar -->
+    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
+      <p style="color:#fff;margin:0;font-size:11px;">Footer Spring Step — por configurar</p>
+    </footer>`,
+    headerStyle: `
+      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
+      footer { background-color: #1a1a1a; width: 600px; }`,
+  },
+  tramontina: {
+    label: "Tramontina",
+    color: "#f59e0b",
+    pending: true,
+    generateHeader: (utm) => `    <!-- HEADER TRAMONTINA — pendiente configurar -->
+    <header style="height:60px;width:600px;background-color:#1a1a1a;display:flex;align-items:center;justify-content:center;">
+      <p style="color:#fff;margin:0;font-size:12px;">Header Tramontina — por configurar</p>
+    </header>`,
+    generateFooter: (utm) => `    <!-- FOOTER TRAMONTINA — pendiente configurar -->
+    <footer style="background-color:#1a1a1a;width:600px;padding:20px;text-align:center;">
+      <p style="color:#fff;margin:0;font-size:11px;">Footer Tramontina — por configurar</p>
+    </footer>`,
+    headerStyle: `
+      header { height: 60px; width: 600px; background-color: #1a1a1a; color: white; }
+      footer { background-color: #1a1a1a; width: 600px; }`,
+  },
 };
 
 let _blockId=0;
@@ -175,39 +356,27 @@ function generateBlockHTML(block, utm){
   }
 }
 
-function generateFullHTML(campaignName, preheader, blocks){
+function generateFullHTML(campaignName, preheader, blocks, brandKey){
   const utm=campaignName||"sin-nombre";
   const blocksHTML=blocks.map(b=>generateBlockHTML(b,utm)).join("\n");
   const hasPreheader=preheader&&preheader.trim();
+  const brand=BRANDS[brandKey]||BRANDS.spring;
   return`<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Colchones Spring</title>
+    <title>${brand.label}</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet"/>
     <style>
-      body { font-family: "Poppins", sans-serif; margin: 0; padding: 0; background-color: white; color: #333; width: 600px !important; position: relative; }
-      header { height: 39px; width: 600px; background-color: #1a1a1a; color: white; }
-      .logo { width: 58px; height: 23px; flex-shrink: 0; padding: 4px 135px; }
-      footer { background-color: #1a1a1a; width: 600px; }
+      body { font-family: "Poppins", sans-serif; margin: 0; padding: 0; background-color: white; color: #333; width: 600px !important; position: relative; }${brand.headerStyle}
       .text-footer-link { color: white !important; text-decoration: none; }${hasPreheader?`
       .preheader { display:none !important; visibility:hidden; opacity:0; height:0; width:0; }`:""}
     </style>
   </head>
   <body>
 ${hasPreheader?`    <span class="preheader">${preheader}</span>\n`:""}
-    <header>
-      <table border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td class="logo">
-            <a href="${addUtm("https://www.colchonesspring.com.co/",utm)}">
-              <img src="${LOGO_URL}" alt="Logo" class="logo" />
-            </a>
-          </td>
-        </tr>
-      </table>
-    </header>
+${brand.generateHeader(utm)}
 
     <main>
       <table border="0" cellspacing="0" cellpadding="0" width="600">
@@ -215,34 +384,7 @@ ${blocksHTML}
       </table>
     </main>
 
-    <footer>
-      <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #1a1a1a; color: #ffffff; font-family: 'Poppins', sans-serif; font-size: 11px; line-height: 1.6;">
-        <tr>
-          <td style="padding: 65px 30px;" valign="top" width="140">
-            <a href="${addUtm("https://www.colchonesspring.com.co/",utm)}" style="text-decoration: none;">
-              <img src="${FOOTER_LOGO}" alt="Spring" style="width: 100px; display: block; margin-bottom: 4px;" />
-            </a>
-          </td>
-          <td style="padding: 20px 15px;" valign="top" width="260">
-            <p style="margin: 0 0 2px; font-weight: 700; font-size: 12px;">Contáctenos</p>
-            <p style="margin: 0 0 2px; color: #cccccc;">Servicio al cliente, teléfono de contacto</p>
-            <p style="margin: 0 0 10px; color: #ffffff;">(601) 307 70 53</p>
-            <p style="margin: 0 0 6px; font-weight: 700;">Síguenos en nuestras redes:</p>
-            <div>
-              <a href="${SOCIAL.facebook.url}" style="text-decoration: none; margin-right: 8px;"><img src="${SOCIAL.facebook.img}" alt="Facebook" style="width: 22px; height: 22px; vertical-align: middle;"/></a>
-              <a href="${SOCIAL.youtube.url}" style="text-decoration: none; margin-right: 8px;"><img src="${SOCIAL.youtube.img}" alt="YouTube" style="width: 22px; height: 22px; vertical-align: middle;"/></a>
-              <a href="${SOCIAL.tiktok.url}" style="text-decoration: none; margin-right: 8px;"><img src="${SOCIAL.tiktok.img}" alt="X" style="width: 22px; height: 22px; vertical-align: middle;"/></a>
-              <a href="${SOCIAL.instagram.url}" style="text-decoration: none;"><img src="${SOCIAL.instagram.img}" alt="Instagram" style="width: 22px; height: 22px; vertical-align: middle;"/></a>
-            </div>
-          </td>
-          <td style="padding: 20px 25px 20px 15px;" valign="top" width="200">
-            <p style="margin: 0 0 2px; font-weight: 700; font-size: 12px;">Escríbenos a:</p>
-            <a href="mailto:scliente@spring.com.co" style="color: #ffffff; text-decoration: none;">scliente@spring.com.co</a>
-            <p style="margin: 14px 0 0; color: #cccccc;">Si deseas cancelar la<br/>suscripción <a href="https://momentos.spring.com.co/desuscribirse?email=::subscriber.email::" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: 700;">haz clic aquí</a></p>
-          </td>
-        </tr>
-      </table>
-    </footer>
+${brand.generateFooter(utm)}
   </body>
 </html>`;
 }
@@ -395,6 +537,7 @@ function App(){
   const[setupError,setSetupError]=useState("");
   const[showTokenField,setShowTokenField]=useState(false);
 
+  const[selectedBrand,setSelectedBrand]=useState("spring");
   const[campaignName,setCampaignName]=useState("");
   const[preheader,setPreheader]=useState("");
   const[blocks,setBlocks]=useState([]);
@@ -430,9 +573,9 @@ function App(){
   const moveBlock=(i,dir)=>{const j=i+dir;if(j<0||j>=blocks.length)return;const c=[...blocks];[c[i],c[j]]=[c[j],c[i]];setBlocks(c);};
 
   const handleGenerate=useCallback(()=>{
-    setGenerated(generateFullHTML(campaignName,preheader,blocks));
+    setGenerated(generateFullHTML(campaignName,preheader,blocks,selectedBrand));
     setShowPreview(true);setCopied(false);
-  },[campaignName,preheader,blocks]);
+  },[campaignName,preheader,blocks,selectedBrand]);
 
   const handleCopy=useCallback(()=>{
     navigator.clipboard.writeText(generated).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2500);});
@@ -455,7 +598,7 @@ function App(){
         <div style={{maxWidth:420,width:"100%"}}>
           <div style={{textAlign:"center",marginBottom:24}}>
             <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,#4a9eff,#7c5cfc)",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:12}}>✉</div>
-            <h1 style={{fontSize:22,fontWeight:800,margin:"0 0 4px",letterSpacing:"-0.02em"}}>Spring Email Builder</h1>
+            <h1 style={{fontSize:22,fontWeight:800,margin:"0 0 4px",letterSpacing:"-0.02em"}}>Email Builder</h1>
             <p style={{fontSize:12,color:"#6b7280",margin:0}}>Configuración inicial (solo una vez por navegador)</p>
           </div>
           <div style={{background:"#13151a",borderRadius:12,padding:20,border:"1px solid #1e2028"}}>
@@ -507,8 +650,8 @@ function App(){
         <div style={{display:"flex",alignItems:"center",gap:10,maxWidth:1200,margin:"0 auto"}}>
           <div style={{width:32,height:32,borderRadius:8,background:"linear-gradient(135deg,#4a9eff,#7c5cfc)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>✉</div>
           <div style={{flex:1}}>
-            <h1 style={{margin:0,fontSize:17,fontWeight:800,letterSpacing:"-0.02em"}}>Spring Email Builder</h1>
-            <p style={{margin:0,fontSize:10,color:"#4a4d55"}}>Arma tu mailing bloque a bloque — Colchones Spring</p>
+            <h1 style={{margin:0,fontSize:17,fontWeight:800,letterSpacing:"-0.02em"}}>Email Builder</h1>
+            <p style={{margin:0,fontSize:10,color:"#4a4d55"}}>Arma tu mailing bloque a bloque — <span style={{color:BRANDS[selectedBrand]?.color||"#4a9eff",fontWeight:700}}>{BRANDS[selectedBrand]?.label||"Marca"}</span></p>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:6}}>
             <span style={{fontSize:9,color:"#10b981",fontWeight:700,background:"#10b98118",padding:"4px 10px",borderRadius:20}}>✓ GitHub</span>
@@ -523,6 +666,34 @@ function App(){
       <div style={{flex:1,overflow:"hidden",display:"flex",maxWidth:1200,margin:"0 auto",width:"100%"}}>
         {/* Left: Editor */}
         <div style={{width:"440px",flexShrink:0,overflow:"auto",padding:"14px 16px 100px",borderRight:"1px solid #1e2028"}}>
+          {/* Brand Selector */}
+          <div style={{background:"#13151a",borderRadius:10,padding:"14px 16px",marginBottom:12,border:"1px solid #1e2028"}}>
+            <h3 style={{margin:"0 0 10px",fontSize:13,fontWeight:700,color:"#e1e4ea"}}>🏷 Marca</h3>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+              {Object.entries(BRANDS).map(([key,brand])=>{
+                const active=selectedBrand===key;
+                const isPending=brand.pending===true;
+                return(
+                  <button key={key} onClick={()=>{setSelectedBrand(key);setGenerated("");}}
+                    title={isPending?"Header/footer pendiente de configurar":""}
+                    style={{padding:"5px 11px",borderRadius:20,border:`1.5px solid ${active?brand.color:"#252830"}`,
+                      background:active?`${brand.color}22`:"transparent",
+                      color:active?brand.color:isPending?"#4a4d55":"#6b7280",
+                      fontSize:11,fontWeight:700,cursor:"pointer",transition:"all 0.15s",
+                      position:"relative"}}>
+                    {brand.label}
+                    {isPending&&<span title="Pendiente de configurar" style={{position:"absolute",top:-3,right:-3,width:7,height:7,borderRadius:"50%",background:"#f59e0b",border:"1.5px solid #0d0f13"}}/>}
+                  </button>
+                );
+              })}
+            </div>
+            {selectedBrand!=="spring"&&(
+              <p style={{margin:"8px 0 0",fontSize:10,color:"#f59e0b",lineHeight:1.5}}>
+                ⚠ Header/footer de <strong>{BRANDS[selectedBrand]?.label}</strong> pendiente — pásame el código y lo configuro.
+              </p>
+            )}
+          </div>
+
           <div style={{background:"#13151a",borderRadius:10,padding:"14px 16px",marginBottom:12,border:"1px solid #1e2028"}}>
             <h3 style={{margin:"0 0 10px",fontSize:13,fontWeight:700,color:"#4a9eff"}}>⚡ Campaña</h3>
             <Input label="Nombre campaña (slug UTM)" value={campaignName} onChange={setCampaignName} placeholder="gran-sale-190126" mono/>
