@@ -111,42 +111,72 @@ const BRANDS = {
   challenger: {
     label: "Challenger",
     color: "#ef4444",
-    generateHeader: (utm) => `    <header style="background:black;border-bottom:1px solid #DEDEDE;">
-      <div style="width:600px;margin:0 auto;">
-        <div style="width:140px;padding:30px;margin:0 auto;">
-          <a href="${addUtm("https://www.challenger.com.co/",utm)}" style="display:block;margin:0 auto;">
-            <img src="https://challengerco.vteximg.com.br/arquivos/challenger-logo-triggers.png" style="width:140px;display:block;margin:0 auto;" alt="Challenger"/>
-          </a>
-        </div>
-      </div>
+    generateHeader: (utm) => `    <header>
+      <table border="0" cellspacing="0" cellpadding="0" width="600">
+        <tbody>
+          <tr>
+            <td valign="top" align="center" style="background:black;border-bottom:1px solid #DEDEDE;height:79px;">
+              <table border="0" cellspacing="0" cellpadding="0" width="600">
+                <tbody>
+                  <tr>
+                    <td style="width:140px;padding:30px;margin:0 auto;display:block;">
+                      <table border="0" cellspacing="0" cellpadding="0" width="140">
+                        <tbody>
+                          <tr>
+                            <td style="margin:0 auto;display:block;">
+                              <a href="${addUtm("https://www.challenger.com.co/",utm)}" style="margin:0 auto;display:block;">
+                                <img src="https://challengerco.vteximg.com.br/arquivos/challenger-logo-triggers.png" style="width:140px;margin:0 auto;display:block;" alt="Challenger"/>
+                              </a>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </header>`,
-    generateFooter: (utm) => `    <footer style="background-color:#003494;padding:20px;">
-      <div style="width:600px;min-height:110px;display:flex;align-items:center;">
-        <div style="width:36%;text-align:center;">
-          <a href="${addUtm("https://www.challenger.com.co/",utm)}">
-            <img src="https://challengerco.vteximg.com.br/arquivos/challenger-logo-triggers.png" alt="Challenger" style="max-width:54%;height:auto;display:block;margin:0 auto;"/>
-          </a>
-        </div>
-        <div style="width:38%;color:white;font-size:13px;font-weight:600;line-height:1.6;">
-          <span>Contáctenos</span><br/>
-          <span style="font-weight:300;">Servicio al cliente, teléfono de contacto</span><br/>
-          <a href="tel:+6014256000" style="font-weight:300;text-decoration:none;color:white;">(601) 425 6000</a><br/>
-          <div style="margin-top:5px;">
-            <span>Síguenos en nuestras redes:</span><br/>
-            <a href="https://www.facebook.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-face.png" alt="Facebook" style="width:22px;height:auto;margin-right:4px;vertical-align:middle;"/></a>
-            <a href="https://www.instagram.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-inst.png" alt="Instagram" style="width:22px;height:auto;margin-right:4px;vertical-align:middle;"/></a>
-            <a href="https://www.youtube.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-yt.png" alt="YouTube" style="width:22px;height:auto;vertical-align:middle;"/></a>
-          </div>
-        </div>
-        <div style="width:26%;color:white;font-size:13px;line-height:1.6;font-weight:700;">
-          Escríbenos a:<br/>
-          <a href="mailto:scliente@challenger.com.co" style="font-weight:300;color:white;text-decoration:none;">scliente@challenger.com.co</a>
-        </div>
-      </div>
+    generateFooter: (utm) => `    <footer>
+      <table border="0" cellspacing="0" cellpadding="0" width="600">
+        <tbody>
+          <tr>
+            <td style="background-color:#003494;height:110px;padding:20px;">
+              <table style="width:100%;height:100%;" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <td style="width:36%;text-align:center;">
+                      <a href="${addUtm("https://www.challenger.com.co/",utm)}">
+                        <img src="https://challengerco.vteximg.com.br/arquivos/challenger-logo-triggers.png" alt="Challenger" style="max-width:54%;height:auto;margin:0 auto;display:block;"/>
+                      </a>
+                    </td>
+                    <td style="width:38%;color:white;text-align:left;font-size:13px;font-weight:600;line-height:normal;">
+                      <span style="padding:5px 0;">Contáctenos</span><br/>
+                      <span style="padding:5px 0;font-weight:300;">Servicio al cliente, teléfono de contacto</span><br/>
+                      <a href="tel:+6014256000" style="font-weight:300;padding:5px 0;text-decoration:none;color:white;">(601) 425 6000</a><br/>
+                      <span style="padding:5px 0;">Síguenos en nuestras redes:</span>
+                      <a href="https://www.facebook.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-face.png" alt="Facebook" style="max-width:7%;height:auto;padding:0 3px;"/></a>
+                      <a href="https://www.instagram.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-inst.png" alt="Instagram" style="max-width:7%;height:auto;padding:0 3px;"/></a>
+                      <a href="https://www.youtube.com/challengercolombia" target="_blank"><img src="https://vugravity.vteximg.com.br/arquivos/logo-yt.png" alt="YouTube" style="max-width:7%;height:auto;padding:0 3px;"/></a>
+                    </td>
+                    <td style="width:25%;color:white;text-align:left;font-size:13px;font-weight:700;line-height:normal;">
+                      Escríbenos a:<br/>
+                      <a href="mailto:scliente@challenger.com.co" style="font-weight:300;color:white;text-decoration:none;">scliente@challenger.com.co</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </footer>`,
     headerStyle: `
-      header { background: black; border-bottom: 1px solid #DEDEDE; width: 600px; }
-      footer { background-color: #003494; width: 600px; }`,
+      header { width: 600px; }
+      footer { width: 600px; }`,
   },
   gallery: {
     label: "Gallery",
