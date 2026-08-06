@@ -31,7 +31,7 @@ const BRANDS = {
         <tr>
           <td class="logo">
             <a href="${addUtm("https://www.colchonesspring.com.co/",utm)}">
-              <img src="https://colchonesspring.vteximg.com.br/arquivos/momentos-new-logo.png" alt="Logo" class="logo" />
+              <img src="https://colchonesspring.vteximg.com.br/arquivos/LOGO-MOMENTOS-2026.png" alt="Logo" class="logo" />
             </a>
           </td>
         </tr>
@@ -67,7 +67,7 @@ const BRANDS = {
     </footer>`,
     headerStyle: `
       header { height: 39px; width: 600px; background-color: #1a1a1a; color: white; }
-      .logo { width: 58px; height: 23px; flex-shrink: 0; padding: 4px 135px; }
+      .logo { width: 75px; height: 23px; flex-shrink: 0; padding: 4px 135px; }
       footer { background-color: #1a1a1a; width: 600px; }`,
   },
   suarez: {
@@ -586,7 +586,7 @@ function generateBlockHTML(block, utm){
     case"contador":return`
         <!-- CONTADOR -->
         <tr>
-          <td align="center" style="background-color: ${block.bgColor||"#FF1135"}; padding: 10px;">
+          <td align="center" style="background-color: ${block.bgColor||"#FF1135"}; padding: 0px 10px;">
             <table border="0" cellSpacing="0" cellPadding="0" width="100%">
               <tbody>
                 <tr>
@@ -594,7 +594,7 @@ function generateBlockHTML(block, utm){
                     <p style="color: #fff; font-size: 18px; font-weight: 700; margin: 0;">${block.text||""}</p>
                   </td>
                   <td>
-                    <img src="${block.timerUrl}" alt="Cuenta regresiva" width="250" style="display: block;">
+                    <img src="${block.timerUrl}" alt="Cuenta regresiva" width="250" style="display: block; height:5rem; object-fit:cover">
                   </td>
                 </tr>
               </tbody>
