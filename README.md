@@ -23,12 +23,12 @@ email-assets/
 |---|---|
 | Colchones Spring | ✅ Listo |
 | Challenger | ✅ Listo |
-| Suárez | ⏳ Pendiente |
-| Gallery | ⏳ Pendiente |
+| Suárez | ✅ Listo |
+| Gallery | ✅ Listo |
 | Almacenes Sí | ⏳ Pendiente |
-| Rosen | ⏳ Pendiente |
-| Spring Step | ⏳ Pendiente |
-| Tramontina | ⏳ Pendiente |
+| Rosen | ✅ Listo |
+| Spring Step | ✅ Listo |
+| Tramontina | ✅ Listo |
 
 ## Cómo agregar o actualizar una marca
 
