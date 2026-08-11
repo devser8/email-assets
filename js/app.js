@@ -547,6 +547,7 @@ const BLOCK_TYPES=[
   {key:"productos",label:"Productos",icon:"📦",desc:"1, 2, 3 o más productos lado a lado"},
   {key:"contador",label:"Contador",icon:"⏱",desc:"Cuenta regresiva con timer"},
   {key:"cenefa",label:"Cenefa 100%",icon:"🎨",desc:"Imagen decorativa ancho completo"},
+  {key:"espaciador",label:"Espaciado",icon:"↕",desc:"Espacio en blanco entre bloques"},
 ];
 
 function createBlock(type){
@@ -555,6 +556,7 @@ function createBlock(type){
     case"productos":return{id:uid(),type:"productos",items:[{imgUrl:"",linkUrl:"",alt:"Producto 1"}]};
     case"contador":return{id:uid(),type:"contador",bgColor:"#FF1135",text:"Comenzó la cuenta regresiva",timerUrl:""};
     case"cenefa":return{id:uid(),type:"cenefa",imgUrl:"",linkUrl:"",alt:"Cenefa"};
+    case"espaciador":return{id:uid(),type:"espaciador",height:10};
     default:return null;
   }
 }
@@ -610,6 +612,13 @@ function generateBlockHTML(block, utm){
             ${block.linkUrl?`</a>`:""}
           </td>
         </tr>`;
+    case"espaciador":{
+      const h=block.height||10;
+      return`
+        <!-- ESPACIADOR -->
+        <tr>
+          <td height="${h}" style="height:${h}px;line-height:${h}px;font-size:0;">&nbsp;</td>
+        </tr>`;}
     default:return"";
   }
 }
@@ -833,6 +842,7 @@ function blockSummary(block){
       return `${n} producto${n!==1?"s":""} · ${full} con imagen`;
     }
     case"contador":return block.text||"Cuenta regresiva";
+    case"espaciador":return `${block.height||10}px de alto`;
     default:return "";
   }
 }
@@ -842,6 +852,7 @@ function blockBadge(block){
     case"productos":return{label:`${(block.items||[]).length} COLS`,color:"#a855f7"};
     case"contador":return{label:"TIMER",color:"#d97706"};
     case"cenefa":return{label:"FRANJA",color:"#14b8a6"};
+    case"espaciador":return{label:"ESPACIO",color:"#94a3b8"};
     default:return{label:"",color:T.dim};
   }
 }
@@ -862,6 +873,15 @@ function BlockCard({block,index,expanded,onToggle,onUpdate,onRemove,onDuplicate,
       case"cenefa":return(<>
         <ImgUploadField label="Imagen cenefa" value={block.imgUrl} onChange={v=>onUpdate({...block,imgUrl:v})} token={token}/>
         <Input label="URL destino (opcional)" value={block.linkUrl} onChange={v=>onUpdate({...block,linkUrl:v})} placeholder="Dejar vacío si no lleva link" mono/>
+      </>);
+      case"espaciador":return(<>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <label style={{fontSize:10,fontWeight:700,color:T.faint,textTransform:"uppercase",letterSpacing:"0.07em"}}>Alto (px)</label>
+          <input type="number" min="1" max="100" value={block.height||10}
+            onChange={e=>onUpdate({...block,height:Math.max(1,parseInt(e.target.value,10)||10)})}
+            style={{width:64,height:30,padding:"0 8px",fontSize:12,border:`1px solid ${T.line3}`,borderRadius:8,background:T.input,color:T.text,outline:"none"}}/>
+          <span style={{fontSize:10.5,color:T.faintest}}>Solo espacio vertical, sin margen a los lados</span>
+        </div>
       </>);
       case"contador":return(<>
         <Input label="URL del timer (mmgo.io)" value={block.timerUrl} onChange={v=>onUpdate({...block,timerUrl:v})} placeholder="https://s.mmgo.io/t/DEMF/" mono/>
@@ -1325,6 +1345,7 @@ function App(){
                       {bt.key==="cenefa"&&<div style={{width:"80%",height:5,borderRadius:2,background:T.sk2}}/>}
                       {bt.key==="productos"&&[0,1,2].map(n=><div key={n} style={{width:20,height:16,borderRadius:2,background:T.sk2}}/>)}
                       {bt.key==="contador"&&[0,1,2].map(n=><div key={n} style={{width:14,height:16,borderRadius:2,background:T.sk2}}/>)}
+                      {bt.key==="espaciador"&&<div style={{width:"70%",height:3,borderRadius:2,background:T.sk2}}/>}
                     </div>
                     <div>
                       <div style={{fontSize:12,fontWeight:600}}>{bt.label.replace(" 100%","")}</div>
