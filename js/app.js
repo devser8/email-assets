@@ -701,6 +701,22 @@ function Grip(){
   );
 }
 
+function FloatingMenu({anchorRef,width,style,children}){
+  const[pos,setPos]=useState(null);
+  useEffect(()=>{
+    const r=anchorRef.current?.getBoundingClientRect();
+    if(r) setPos({top:r.bottom+6,left:r.left});
+  },[anchorRef]);
+  if(!pos) return null;
+  return ReactDOM.createPortal(
+    <div style={{position:"fixed",top:pos.top,left:pos.left,width,zIndex:1000,
+      background:T.card,border:`1px solid ${T.line3}`,borderRadius:10,boxShadow:`0 14px 34px ${T.shadow}`,...style}}>
+      {children}
+    </div>,
+    document.body
+  );
+}
+
 function IconButton({title,onClick,children,danger,disabled}){
   const[h,setH]=useState(false);
   return(
@@ -715,20 +731,23 @@ function IconButton({title,onClick,children,danger,disabled}){
   );
 }
 
-function Input({label,value,onChange,placeholder,mono,right}){
+function Input({label,value,onChange,placeholder,mono,right,required}){
   const[f,setF]=useState(false);
+  const empty=required&&!value.trim();
   return(
     <div style={{marginBottom:10}}>
       {label&&(
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5}}>
-          <label style={{fontSize:10,fontWeight:700,color:T.faint,textTransform:"uppercase",letterSpacing:"0.07em"}}>{label}</label>
+          <label style={{fontSize:10,fontWeight:700,color:T.faint,textTransform:"uppercase",letterSpacing:"0.07em"}}>
+            {label}{required&&<span style={{color:"#ef4444"}}> *</span>}
+          </label>
           {right}
         </div>
       )}
       <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
         onFocus={()=>setF(true)} onBlur={()=>setF(false)}
         style={{width:"100%",height:34,padding:"0 10px",fontSize:12,fontFamily:mono?"ui-monospace,'SF Mono',monospace":"inherit",
-          border:`1px solid ${f?T.accent:T.line3}`,borderRadius:8,background:T.input,color:T.text,outline:"none",boxSizing:"border-box",transition:"border-color .15s"}}
+          border:`1px solid ${f?T.accent:empty?"#ef4444":T.line3}`,borderRadius:8,background:T.input,color:T.text,outline:"none",boxSizing:"border-box",transition:"border-color .15s"}}
       />
     </div>
   );
@@ -944,7 +963,7 @@ function App(){
   const[blocks,setBlocks]=useState(draft.blocks||[]);
   const[expandedId,setExpandedId]=useState(null);
   const[showBrandMenu,setShowBrandMenu]=useState(false);
-  const[showCampaign,setShowCampaign]=useState(false);
+  const brandBtnRef=useRef(null);
   const[device,setDevice]=useState("desktop");
   const[viewCode,setViewCode]=useState(false);
   const[copied,setCopied]=useState(false);
@@ -1035,6 +1054,7 @@ function App(){
     [campaignName,preheader,blocks,selectedBrand]
   );
   const sizeKB=Math.max(1,Math.round(new Blob([generated]).size/1024));
+  const missingRequired=!campaignName.trim()||!preheader.trim();
   const warnings=[];
   blocks.forEach((b,i)=>{
     if((b.type==="banner"||b.type==="cenefa")&&!b.imgUrl&&!b.hidden)warnings.push(`Bloque #${i+1}: falta imagen`);
@@ -1128,7 +1148,7 @@ function App(){
         <div style={{width:1,height:22,background:T.line2,flexShrink:0}}/>
 
         {/* Brand */}
-        <div style={{position:"relative",flexShrink:0}}>
+        <div ref={brandBtnRef} style={{position:"relative",flexShrink:0}}>
           <button onClick={()=>setShowBrandMenu(!showBrandMenu)}
             style={{display:"flex",alignItems:"center",gap:9,height:32,padding:"0 10px 0 8px",border:`1px solid ${T.line3}`,borderRadius:8,background:T.card,color:T.text,fontSize:13,fontWeight:600,cursor:"pointer"}}>
             <span style={{width:8,height:8,borderRadius:"50%",background:brand?.color}}/>
@@ -1136,48 +1156,21 @@ function App(){
             {brand?.pending&&<span style={{fontSize:9.5,color:"#f59e0b",fontWeight:700}}>pendiente</span>}
             <span style={{opacity:.55,display:"flex"}}><Ico d={I.chevronDown} size={12} w={2.5}/></span>
           </button>
-          {showBrandMenu&&(
-            <div style={{position:"absolute",top:38,left:0,width:240,background:T.card,border:`1px solid ${T.line3}`,borderRadius:10,padding:6,boxShadow:`0 14px 34px ${T.shadow}`,display:"flex",flexDirection:"column",gap:2}}>
-              {Object.entries(BRANDS).map(([key,b])=>(
-                <button key={key} onClick={()=>{setSelectedBrand(key);setShowBrandMenu(false);}}
-                  style={{display:"flex",alignItems:"center",gap:9,height:32,padding:"0 8px",border:0,borderRadius:7,
-                    background:key===selectedBrand?T.hover:"transparent",color:T.text,fontSize:12.5,fontWeight:600,cursor:"pointer",textAlign:"left"}}>
-                  <span style={{width:8,height:8,borderRadius:"50%",background:b.color}}/>
-                  <span style={{flex:1}}>{b.label}</span>
-                  {b.pending&&<span style={{fontSize:9.5,color:"#f59e0b",fontWeight:700}}>pendiente</span>}
-                  {key===selectedBrand&&<span style={{color:T.accent,display:"flex"}}><Ico d={I.check} size={12}/></span>}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
-
-        {/* Campaign summary */}
-        <div style={{position:"relative",flex:"0 1 420px",minWidth:240}}>
-          <button onClick={()=>setShowCampaign(!showCampaign)}
-            style={{display:"flex",alignItems:"center",gap:8,height:32,padding:"0 12px",borderRadius:8,background:T.card2,border:`1px solid ${T.line}`,cursor:"pointer",width:"100%",minWidth:0,overflow:"hidden"}}>
-            <span style={{color:T.faintest,display:"flex"}}><Ico d={I.link}/></span>
-            <span style={{fontFamily:"ui-monospace,monospace",fontSize:12,color:campaignName?T.dim:T.faintest,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-              {campaignName||"sin-nombre-campaña"}
-            </span>
-            <span style={{color:T.faintest,flexShrink:0}}>·</span>
-            <span style={{color:T.faint,fontSize:12,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",flex:"1 1 auto",minWidth:0}}>
-              {preheader?`Preheader: “${preheader}”`:"Sin preheader"}
-            </span>
-            <span style={{color:T.accent,display:"flex",flexShrink:0}}><Ico d={I.pencil} size={12}/></span>
-          </button>
-          {showCampaign&&(
-            <div style={{position:"absolute",top:38,left:0,width:360,background:T.card,border:`1px solid ${T.line3}`,borderRadius:10,padding:14,boxShadow:`0 14px 34px ${T.shadow}`}}>
-              <Input label="Nombre campaña (slug UTM)" value={campaignName} onChange={setCampaignName} placeholder="gran-sale-190126" mono/>
-              <div style={{background:T.input,borderRadius:6,padding:"7px 10px",fontSize:10,color:T.faintest,fontFamily:"ui-monospace,monospace",wordBreak:"break-all",marginBottom:10}}>
-                utm_source=mailing&utm_medium=mailing&utm_campaign=<span style={{color:T.accent}}>{campaignName||"…"}</span>
-              </div>
-              <Input label="Preheader (opcional)" value={preheader} onChange={setPreheader} placeholder="Texto oculto en bandeja de entrada"/>
-              <button onClick={()=>setShowCampaign(false)}
-                style={{width:"100%",height:32,border:0,borderRadius:8,background:T.accent,color:T.accentFg,fontSize:12.5,fontWeight:700,cursor:"pointer"}}>Listo</button>
-            </div>
-          )}
-        </div>
+        {showBrandMenu&&(
+          <FloatingMenu anchorRef={brandBtnRef} width={240} style={{padding:6,display:"flex",flexDirection:"column",gap:2}}>
+            {Object.entries(BRANDS).map(([key,b])=>(
+              <button key={key} onClick={()=>{setSelectedBrand(key);setShowBrandMenu(false);}}
+                style={{display:"flex",alignItems:"center",gap:9,height:32,padding:"0 8px",border:0,borderRadius:7,
+                  background:key===selectedBrand?T.hover:"transparent",color:T.text,fontSize:12.5,fontWeight:600,cursor:"pointer",textAlign:"left"}}>
+                <span style={{width:8,height:8,borderRadius:"50%",background:b.color}}/>
+                <span style={{flex:1}}>{b.label}</span>
+                {b.pending&&<span style={{fontSize:9.5,color:"#f59e0b",fontWeight:700}}>pendiente</span>}
+                {key===selectedBrand&&<span style={{color:T.accent,display:"flex"}}><Ico d={I.check} size={12}/></span>}
+              </button>
+            ))}
+          </FloatingMenu>
+        )}
 
         <div style={{flex:1}}/>
 
@@ -1212,13 +1205,15 @@ function App(){
           <Ico d={I.key}/>
         </button>
 
-        <button onClick={handleDownload}
-          style={{display:"flex",alignItems:"center",gap:7,height:32,padding:"0 12px",flexShrink:0,border:`1px solid ${T.line3}`,borderRadius:8,background:T.card,color:T.text,fontSize:12.5,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>
+        <button onClick={handleDownload} disabled={missingRequired}
+          title={missingRequired?"Completa nombre de campaña y preheader antes de descargar":undefined}
+          style={{display:"flex",alignItems:"center",gap:7,height:32,padding:"0 12px",flexShrink:0,border:`1px solid ${T.line3}`,borderRadius:8,background:T.card,color:T.text,fontSize:12.5,fontWeight:600,cursor:missingRequired?"not-allowed":"pointer",whiteSpace:"nowrap",opacity:missingRequired?.45:1}}>
           <span style={{color:T.dim,display:"flex"}}><Ico d={I.download}/></span> Descargar
         </button>
-        <button onClick={handleCopy}
+        <button onClick={handleCopy} disabled={missingRequired}
+          title={missingRequired?"Completa nombre de campaña y preheader antes de copiar":undefined}
           style={{display:"flex",alignItems:"center",gap:7,height:32,padding:"0 14px",flexShrink:0,border:0,borderRadius:8,whiteSpace:"nowrap",
-            background:copied?"#10b981":T.accent,color:copied?"#fff":T.accentFg,fontSize:12.5,fontWeight:700,cursor:"pointer",transition:"background .2s"}}>
+            background:copied?"#10b981":T.accent,color:copied?"#fff":T.accentFg,fontSize:12.5,fontWeight:700,cursor:missingRequired?"not-allowed":"pointer",transition:"background .2s",opacity:missingRequired?.45:1}}>
           <Ico d={copied?I.check:I.copy} w={2.4}/> {copied?"Copiado":"Copiar HTML"}
         </button>
       </div>
@@ -1227,6 +1222,18 @@ function App(){
 
         {/* Left: blocks */}
         <div style={{width:396,flexShrink:0,display:"flex",flexDirection:"column",background:T.chrome,borderRight:`1px solid ${T.line}`,minHeight:0}}>
+          <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.line}`}}>
+            <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:10}}>
+              <span style={{fontSize:13,fontWeight:700}}>Datos de campaña</span>
+              <span style={{fontSize:9.5,fontWeight:700,color:"#ef4444",background:"rgba(239,68,68,.1)",border:"1px solid rgba(239,68,68,.3)",borderRadius:999,padding:"1px 7px"}}>Obligatorio</span>
+            </div>
+            <Input label="Nombre campaña (slug UTM)" value={campaignName} onChange={setCampaignName} placeholder="gran-sale-190126" mono required/>
+            <div style={{background:T.input,borderRadius:6,padding:"7px 10px",fontSize:10,color:T.faintest,fontFamily:"ui-monospace,monospace",wordBreak:"break-all",marginBottom:10}}>
+              utm_source=mailing&utm_medium=mailing&utm_campaign=<span style={{color:T.accent}}>{campaignName||"…"}</span>
+            </div>
+            <Input label="Preheader" value={preheader} onChange={setPreheader} placeholder="Texto oculto en bandeja de entrada" required/>
+          </div>
+
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px 10px"}}>
             <div style={{display:"flex",alignItems:"baseline",gap:8}}>
               <span style={{fontSize:13,fontWeight:700}}>Bloques</span>
@@ -1361,10 +1368,16 @@ function App(){
             <pre style={{margin:0,padding:16,fontSize:11,lineHeight:1.6,color:T.dim,overflow:"auto",flex:1,fontFamily:"ui-monospace,'SF Mono',monospace",whiteSpace:"pre-wrap",wordBreak:"break-all"}}>{generated}</pre>
           ):(
             <div style={{flex:1,overflow:"auto",display:"flex",alignItems:"flex-start",padding:"26px 20px 40px"}}>
-              <div style={{width:device==="mobile"?375:620,margin:"0 auto",flexShrink:0,background:"#fff",borderRadius:6,overflow:"hidden",boxShadow:`0 24px 60px ${T.shadow}`}}>
-                <iframe srcDoc={generated} title="Preview" sandbox="allow-same-origin"
-                  style={{width:device==="mobile"?375:620,height:1200,border:"none",display:"block",background:"#fff"}}/>
-              </div>
+              {(()=>{
+                const renderW=620,mobileScale=375/renderW;
+                return(
+                  <div style={{width:device==="mobile"?375:renderW,height:device==="mobile"?1200*mobileScale:1200,margin:"0 auto",flexShrink:0,background:"#fff",borderRadius:6,overflow:"hidden",boxShadow:`0 24px 60px ${T.shadow}`}}>
+                    <iframe srcDoc={generated} title="Preview" sandbox="allow-same-origin"
+                      style={{width:renderW,height:1200,border:"none",display:"block",background:"#fff",
+                        transform:device==="mobile"?`scale(${mobileScale})`:"none",transformOrigin:"top left"}}/>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>
