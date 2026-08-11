@@ -746,7 +746,7 @@ function Input({label,value,onChange,placeholder,mono,right,required}){
       )}
       <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
         onFocus={()=>setF(true)} onBlur={()=>setF(false)}
-        style={{width:"100%",height:34,padding:"0 10px",fontSize:12,fontFamily:mono?"ui-monospace,'SF Mono',monospace":"inherit",
+        style={{width:"100%",minWidth:0,height:34,padding:"0 10px",fontSize:12,fontFamily:mono?"ui-monospace,'SF Mono',monospace":"inherit",
           border:`1px solid ${f?T.accent:empty?"#ef4444":T.line3}`,borderRadius:8,background:T.input,color:T.text,outline:"none",boxSizing:"border-box",transition:"border-color .15s"}}
       />
     </div>
@@ -804,10 +804,10 @@ function ImgUploadField({label,value,onChange,token,compact}){
           </div>
         )}
       </div>
-      <div style={{display:"flex",alignItems:"center",gap:6}}>
+      <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
         <span style={{fontSize:9.5,color:T.faintest,flexShrink:0}}>o pega URL</span>
         <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder="https://...imagen.png"
-          style={{flex:1,height:26,padding:"0 8px",fontSize:10,fontFamily:"ui-monospace,monospace",border:`1px solid ${T.line}`,borderRadius:6,background:T.input,color:T.text,outline:"none",boxSizing:"border-box"}}/>
+          style={{flex:1,minWidth:0,height:26,padding:"0 8px",fontSize:10,fontFamily:"ui-monospace,monospace",border:`1px solid ${T.line}`,borderRadius:6,background:T.input,color:T.text,outline:"none",boxSizing:"border-box"}}/>
       </div>
       {error&&<div style={{fontSize:10,color:"#ef4444",marginTop:5,lineHeight:1.4}}>{error}</div>}
     </div>
@@ -881,7 +881,7 @@ function BlockCard({block,index,expanded,onToggle,onUpdate,onRemove,onDuplicate,
         return(<>
           <div style={{display:"grid",gridTemplateColumns:items.length>2?"1fr 1fr 1fr":"1fr 1fr",gap:8,marginBottom:10}}>
             {items.map((item,i)=>(
-              <div key={i}>
+              <div key={i} style={{minWidth:0}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
                   <span style={{fontSize:10,fontWeight:700,color:T.faint,letterSpacing:"0.07em"}}>PROD. {i+1}</span>
                   {items.length>1&&<button onClick={()=>removeItem(i)} style={{background:"none",border:0,color:T.faintest,cursor:"pointer",padding:0,display:"flex"}}><Ico d={I.x} size={11} w={2.6}/></button>}
@@ -890,13 +890,13 @@ function BlockCard({block,index,expanded,onToggle,onUpdate,onRemove,onDuplicate,
                 <Input value={item.linkUrl} onChange={v=>updateItem(i,{...item,linkUrl:v})} placeholder="URL destino" mono/>
               </div>
             ))}
-            {items.length<3&&(
-              <button onClick={addItem}
-                style={{alignSelf:"start",marginTop:18,height:84,border:`1.5px dashed ${T.accent}`,borderRadius:9,background:T.accentSoft,color:T.accent,fontSize:10.5,fontWeight:600,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:5,width:"100%"}}>
-                <Ico d={I.plus} size={16}/>Agregar producto
-              </button>
-            )}
           </div>
+          {items.length<3&&(
+            <button onClick={addItem}
+              style={{height:40,border:`1.5px dashed ${T.accent}`,borderRadius:9,background:T.accentSoft,color:T.accent,fontSize:10.5,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6,width:"100%",marginBottom:10}}>
+              <Ico d={I.plus} size={16}/>Agregar producto
+            </button>
+          )}
         </>);}
       default:return null;
     }
@@ -955,6 +955,15 @@ function App(){
   const[showTokenField,setShowTokenField]=useState(false);
 
   const draft=(()=>{try{return JSON.parse(localStorage.getItem(DRAFT_KEY))||{}}catch(e){return{}}})();
+  (draft.blocks||[]).forEach(b=>{
+    const n=parseInt(String(b.id||"").slice(1),10);
+    if(!Number.isNaN(n)&&n>_blockId)_blockId=n;
+  });
+  const seenIds=new Set();
+  (draft.blocks||[]).forEach(b=>{
+    if(!b.id||seenIds.has(b.id))b.id=uid();
+    seenIds.add(b.id);
+  });
 
   const[theme,setTheme]=useState(()=>localStorage.getItem(THEME_KEY)||"dark");
   const[selectedBrand,setSelectedBrand]=useState(draft.selectedBrand||"spring");
