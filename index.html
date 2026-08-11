@@ -7,16 +7,40 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'DM Sans',system-ui,sans-serif;background:#0d0f13;color:#e1e4ea;overflow:hidden}
+
+  /* ── Tokens: tema oscuro (por defecto) ── */
+  body{
+    --bg:#0d0f13; --chrome:#101318; --card:#171b22; --card-2:#14181f; --input:#0f1217;
+    --line:#1f232b; --line-2:#232830; --line-3:#262c36;
+    --text:#e1e4ea; --dim:#8b93a1; --faint:#626b79; --faintest:#4d5563;
+    --hover:#1d222b; --hover-2:#232933; --grip:#454c58;
+    --canvas:#0b0d11; --chip:#1e232b; --sk:#232936; --sk-2:#3d4757;
+    --accent:#4a9eff; --accent-fg:#06121f; --accent-soft:rgba(74,158,255,.12); --accent-line:rgba(74,158,255,.35);
+    --shadow:rgba(0,0,0,.5);
+    font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;
+  }
+
+  /* ── Tokens: tema claro ── */
+  body[data-theme="light"]{
+    --bg:#f2f4f7; --chrome:#ffffff; --card:#ffffff; --card-2:#f7f8fa; --input:#f7f8fa;
+    --line:#e3e7ed; --line-2:#e0e5ec; --line-3:#d6dce5;
+    --text:#101318; --dim:#5c6673; --faint:#7b8494; --faintest:#98a1af;
+    --hover:#eef1f5; --hover-2:#e9edf2; --grip:#b0b8c4;
+    --canvas:#e9ecf1; --chip:#eceff4; --sk:#e5e9f0; --sk-2:#c2cad6;
+    --accent:#2f7ce0; --accent-fg:#ffffff; --accent-soft:rgba(47,124,224,.10); --accent-line:rgba(47,124,224,.32);
+    --shadow:rgba(16,19,24,.14);
+  }
+
   #root{height:100vh}
-  ::-webkit-scrollbar{width:6px}
-  ::-webkit-scrollbar-track{background:#0d0f13}
-  ::-webkit-scrollbar-thumb{background:#252830;border-radius:3px}
-  ::-webkit-scrollbar-thumb:hover{background:#3a3d45}
-  input[type="text"]:focus,input[type="password"]:focus{border-color:#4a9eff!important;outline:none}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{opacity:.85}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--line-3);border-radius:4px;border:2px solid transparent;background-clip:padding-box}
+  input::placeholder{color:var(--faintest)}
   button{font-family:inherit}
   @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}

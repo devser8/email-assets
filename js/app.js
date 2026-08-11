@@ -1,4 +1,4 @@
-const { useState, useCallback, useRef } = React;
+const { useState, useCallback, useRef, useEffect, useMemo } = React;
 
 // ─── GitHub Config ───
 const GH_REPO = "devser8/email-assets";
@@ -648,145 +648,285 @@ ${brand.generateFooter(utm)}
 }
 
 // ─── UI Components ───
-function Input({label,value,onChange,placeholder,mono}){
+const T={
+  bg:"var(--bg)",chrome:"var(--chrome)",card:"var(--card)",card2:"var(--card-2)",input:"var(--input)",
+  line:"var(--line)",line2:"var(--line-2)",line3:"var(--line-3)",
+  text:"var(--text)",dim:"var(--dim)",faint:"var(--faint)",faintest:"var(--faintest)",
+  hover:"var(--hover)",hover2:"var(--hover-2)",grip:"var(--grip)",
+  canvas:"var(--canvas)",chip:"var(--chip)",sk:"var(--sk)",sk2:"var(--sk-2)",
+  accent:"var(--accent)",accentFg:"var(--accent-fg)",accentSoft:"var(--accent-soft)",accentLine:"var(--accent-line)",
+  shadow:"var(--shadow)"
+};
+
+function Ico({d,size=13,w=2,fill="none"}){
   return(
-    <div style={{marginBottom:8}}>
-      {label&&<label style={{display:"block",fontSize:10,fontWeight:700,color:"#6b7280",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{label}</label>}
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>
+      {d.map((p,i)=><path key={i} d={p}/>)}
+    </svg>
+  );
+}
+const I={
+  mail:["M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2Z","m2 7 10 6 10-6"],
+  chevronDown:["m6 9 6 6 6-6"],
+  chevronUp:["m6 15 6-6 6 6"],
+  copy:["M9 9h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2z","M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"],
+  download:["M12 3v12","m7 11 5 5 5-5","M4 21h16"],
+  eye:["M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z","M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"],
+  eyeOff:["m3 3 18 18","M10.6 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1","M6.2 6.2A17 17 0 0 0 2 12s3.6 7 10 7a10.6 10.6 0 0 0 5.3-1.4"],
+  trash:["M3 6h18","M8 6V4h8v2","M19 6l-1 14H6L5 6"],
+  undo:["M3 7v6h6","M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"],
+  redo:["M21 7v6h-6","M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"],
+  sun:["M12 2v2","M12 20v2","M4.9 4.9l1.4 1.4","M17.7 17.7l1.4 1.4","M2 12h2","M20 12h2","M4.9 19.1l1.4-1.4","M17.7 6.3l1.4-1.4","M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"],
+  moon:["M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"],
+  desktop:["M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z","M8 21h8"],
+  mobile:["M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z","M11 18h2"],
+  link:["M13 7h6a3 3 0 0 1 0 6h-2","M11 17H5a3 3 0 0 1 0-6h2","M8 10h8"],
+  pencil:["M12 20h9","M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"],
+  plus:["M12 5v14","M5 12h14"],
+  check:["m5 13 4 4L19 7"],
+  x:["M18 6 6 18","m6 6 12 12"],
+  alert:["M12 9v4","M12 17h.01","M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"],
+  code:["m8 6-6 6 6 6","m16 6 6 6-6 6"],
+  send:["m22 2-7 20-4-9-9-4Z"],
+  key:["M15 7a4 4 0 1 1-3.2 6.4L4 21H2v-2l7.6-7.8A4 4 0 0 1 15 7Z"],
+  folder:["M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"]
+};
+
+function Grip(){
+  return(
+    <svg width="12" height="14" viewBox="0 0 12 16" fill={T.grip} style={{flexShrink:0}}>
+      <circle cx="3" cy="3" r="1.4"/><circle cx="9" cy="3" r="1.4"/><circle cx="3" cy="8" r="1.4"/>
+      <circle cx="9" cy="8" r="1.4"/><circle cx="3" cy="13" r="1.4"/><circle cx="9" cy="13" r="1.4"/>
+    </svg>
+  );
+}
+
+function IconButton({title,onClick,children,danger,disabled}){
+  const[h,setH]=useState(false);
+  return(
+    <button title={title} onClick={onClick} disabled={disabled}
+      onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
+      style={{width:26,height:26,display:"flex",alignItems:"center",justifyContent:"center",border:0,borderRadius:6,
+        background:h&&!disabled?(danger?"rgba(239,68,68,.14)":T.hover2):"transparent",
+        color:disabled?T.faintest:h&&danger?"#ef4444":T.faint,
+        cursor:disabled?"default":"pointer",opacity:disabled?.45:1,transition:"background .12s,color .12s"}}>
+      {children}
+    </button>
+  );
+}
+
+function Input({label,value,onChange,placeholder,mono,right}){
+  const[f,setF]=useState(false);
+  return(
+    <div style={{marginBottom:10}}>
+      {label&&(
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5}}>
+          <label style={{fontSize:10,fontWeight:700,color:T.faint,textTransform:"uppercase",letterSpacing:"0.07em"}}>{label}</label>
+          {right}
+        </div>
+      )}
       <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
-        style={{width:"100%",padding:"7px 10px",fontSize:12,fontFamily:mono?"'SF Mono','Fira Code',monospace":"inherit",border:"1px solid #252830",borderRadius:6,background:"#0d0f13",color:"#e1e4ea",outline:"none",boxSizing:"border-box",transition:"border-color 0.15s"}}
+        onFocus={()=>setF(true)} onBlur={()=>setF(false)}
+        style={{width:"100%",height:34,padding:"0 10px",fontSize:12,fontFamily:mono?"ui-monospace,'SF Mono',monospace":"inherit",
+          border:`1px solid ${f?T.accent:T.line3}`,borderRadius:8,background:T.input,color:T.text,outline:"none",boxSizing:"border-box",transition:"border-color .15s"}}
       />
     </div>
   );
 }
 
-function ImgUploadField({label,value,onChange,token}){
+function ImgUploadField({label,value,onChange,token,compact}){
   const[uploading,setUploading]=useState(false);
   const[dragOver,setDragOver]=useState(false);
   const[error,setError]=useState("");
-  const[thumb,setThumb]=useState("");
   const fileRef=useRef(null);
 
   const handleFile=async(file)=>{
     if(!file||!file.type.startsWith("image/"))return;
     if(!token){setError("Token de GitHub no configurado");return;}
     setError("");setUploading(true);
-    try{
-      const url=await uploadToGitHub(file,token);
-      onChange(url);
-      setThumb(URL.createObjectURL(file));
-    }catch(e){
-      setError("Error: "+e.message);
-    }finally{setUploading(false);}
+    try{ const url=await uploadToGitHub(file,token); onChange(url); }
+    catch(e){ setError("Error: "+e.message); }
+    finally{ setUploading(false); }
   };
 
-  const onDrop=(e)=>{e.preventDefault();setDragOver(false);const f=e.dataTransfer.files[0];if(f)handleFile(f);};
-  const onDragOver=(e)=>{e.preventDefault();setDragOver(true);};
-  const onDragLeave=()=>setDragOver(false);
   const hasUrl=value&&value.startsWith("http");
-
   return(
     <div style={{marginBottom:10}}>
-      {label&&<label style={{display:"block",fontSize:10,fontWeight:700,color:"#6b7280",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{label}</label>}
-      <div onDrop={onDrop} onDragOver={onDragOver} onDragLeave={onDragLeave}
+      {label&&<label style={{display:"block",fontSize:10,fontWeight:700,color:T.faint,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:5}}>{label}</label>}
+      <div
+        onDrop={e=>{e.preventDefault();setDragOver(false);const f=e.dataTransfer.files[0];if(f)handleFile(f);}}
+        onDragOver={e=>{e.preventDefault();setDragOver(true);}}
+        onDragLeave={()=>setDragOver(false)}
         onClick={()=>!uploading&&fileRef.current?.click()}
-        style={{border:`2px dashed ${dragOver?"#4a9eff":uploading?"#f59e0b":"#252830"}`,borderRadius:8,padding:hasUrl?"8px":"16px 8px",textAlign:"center",cursor:uploading?"wait":"pointer",background:dragOver?"rgba(74,158,255,0.05)":"transparent",transition:"all 0.2s",marginBottom:4}}>
-        <input ref={fileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(f)handleFile(f);e.target.value="";}}/>
+        style={{position:"relative",border:`1.5px dashed ${dragOver?T.accent:uploading?"#f59e0b":hasUrl?T.line3:T.line3}`,
+          borderRadius:9,overflow:"hidden",cursor:uploading?"wait":"pointer",
+          background:dragOver?T.accentSoft:hasUrl?"#fff":"transparent",
+          height:compact?84:110,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .15s",marginBottom:6}}>
+        <input ref={fileRef} type="file" accept="image/*" style={{display:"none"}}
+          onChange={e=>{const f=e.target.files[0];if(f)handleFile(f);e.target.value="";}}/>
         {uploading?(
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"4px 0"}}>
-            <div style={{width:14,height:14,border:"2px solid #f59e0b",borderTopColor:"transparent",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
-            <span style={{fontSize:11,color:"#f59e0b",fontWeight:700}}>Subiendo a GitHub...</span>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <div style={{width:14,height:14,border:"2px solid #f59e0b",borderTopColor:"transparent",borderRadius:"50%",animation:"spin .8s linear infinite"}}/>
+            <span style={{fontSize:11,color:"#f59e0b",fontWeight:700}}>Subiendo…</span>
           </div>
         ):hasUrl?(
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
-            {thumb&&<img src={thumb} alt="" style={{width:40,height:40,objectFit:"cover",borderRadius:4,flexShrink:0}}/>}
-            <div style={{flex:1,textAlign:"left",overflow:"hidden"}}>
-              <div style={{fontSize:10,color:"#10b981",fontWeight:700,marginBottom:2}}>✅ Subida — disponible al instante</div>
-              <div style={{fontSize:9,color:"#4a4d55",fontFamily:"monospace",wordBreak:"break-all",lineHeight:1.3}}>{value}</div>
-            </div>
-            <span style={{fontSize:9,color:"#6b7280",flexShrink:0}}>Cambiar</span>
-          </div>
+          <>
+            <img src={value} alt="" style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain",display:"block"}}/>
+            <button onClick={e=>{e.stopPropagation();onChange("");}}
+              style={{position:"absolute",top:5,right:5,width:20,height:20,border:0,borderRadius:5,background:"rgba(13,15,19,.72)",color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <Ico d={I.x} size={11} w={2.6}/>
+            </button>
+          </>
         ):(
-          <div>
-            <p style={{fontSize:20,margin:"0 0 4px"}}>📎</p>
-            <p style={{fontSize:11,color:"#6b7280",fontWeight:600,margin:0}}>Arrastra imagen aquí o haz click</p>
-            <p style={{fontSize:9,color:"#3a3d45",margin:"3px 0 0"}}>PNG, JPG, WEBP — se sube al repo de GitHub</p>
+          <div style={{textAlign:"center",color:T.faint,display:"flex",flexDirection:"column",alignItems:"center",gap:5}}>
+            <span style={{color:T.accent}}><Ico d={I.plus} size={16}/></span>
+            <p style={{fontSize:11,fontWeight:600,margin:0}}>Arrastra o haz click</p>
+            <p style={{fontSize:9.5,margin:0,color:T.faintest}}>PNG, JPG, WEBP</p>
           </div>
         )}
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6}}>
-        <span style={{fontSize:9,color:"#3a3d45",flexShrink:0}}>o pega URL:</span>
+        <span style={{fontSize:9.5,color:T.faintest,flexShrink:0}}>o pega URL</span>
         <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder="https://...imagen.png"
-          style={{flex:1,padding:"5px 8px",fontSize:10,fontFamily:"'SF Mono',monospace",border:"1px solid #1e2028",borderRadius:4,background:"#0d0f13",color:"#e1e4ea",outline:"none",boxSizing:"border-box"}}
-        />
+          style={{flex:1,height:26,padding:"0 8px",fontSize:10,fontFamily:"ui-monospace,monospace",border:`1px solid ${T.line}`,borderRadius:6,background:T.input,color:T.text,outline:"none",boxSizing:"border-box"}}/>
       </div>
-      {error&&<div style={{fontSize:10,color:"#ef4444",marginTop:4,lineHeight:1.4}}>{error}</div>}
+      {error&&<div style={{fontSize:10,color:"#ef4444",marginTop:5,lineHeight:1.4}}>{error}</div>}
     </div>
   );
 }
 
-function BlockCard({block,index,total,onUpdate,onRemove,onMove,token}){
+// ─── Block summary helpers ───
+function blockThumbs(block){
+  if(block.type==="productos")return (block.items||[]).map(i=>i.imgUrl).filter(Boolean).slice(0,3);
+  return block.imgUrl?[block.imgUrl]:[];
+}
+function blockSummary(block){
+  switch(block.type){
+    case"banner":
+    case"cenefa":{
+      if(!block.imgUrl)return "Sin imagen";
+      const name=block.imgUrl.split("/").pop();
+      return block.linkUrl?`${name} → ${block.linkUrl.replace(/^https?:\/\//,"")}`:name;
+    }
+    case"productos":{
+      const n=(block.items||[]).length;
+      const full=(block.items||[]).filter(i=>i.imgUrl).length;
+      return `${n} producto${n!==1?"s":""} · ${full} con imagen`;
+    }
+    case"contador":return block.text||"Cuenta regresiva";
+    default:return "";
+  }
+}
+function blockBadge(block){
+  switch(block.type){
+    case"banner":return{label:"100%",color:"#4a9eff"};
+    case"productos":return{label:`${(block.items||[]).length} COLS`,color:"#a855f7"};
+    case"contador":return{label:"TIMER",color:"#d97706"};
+    case"cenefa":return{label:"FRANJA",color:"#14b8a6"};
+    default:return{label:"",color:T.dim};
+  }
+}
+
+function BlockCard({block,index,expanded,onToggle,onUpdate,onRemove,onDuplicate,onToggleHidden,token,dragProps,dragging}){
   const typeInfo=BLOCK_TYPES.find(t=>t.key===block.type);
+  const badge=blockBadge(block);
+  const thumbs=blockThumbs(block);
+  const hidden=!!block.hidden;
+
   const renderFields=()=>{
     switch(block.type){
       case"banner":return(<>
         <ImgUploadField label="Imagen banner" value={block.imgUrl} onChange={v=>onUpdate({...block,imgUrl:v})} token={token}/>
         <Input label="URL destino (click)" value={block.linkUrl} onChange={v=>onUpdate({...block,linkUrl:v})} placeholder="https://..." mono/>
+        <Input label="Texto alternativo (alt)" value={block.alt} onChange={v=>onUpdate({...block,alt:v})} placeholder="Descripción de la imagen"/>
       </>);
       case"cenefa":return(<>
         <ImgUploadField label="Imagen cenefa" value={block.imgUrl} onChange={v=>onUpdate({...block,imgUrl:v})} token={token}/>
-        <Input label="URL destino (click, opcional)" value={block.linkUrl} onChange={v=>onUpdate({...block,linkUrl:v})} placeholder="Dejar vacío si no lleva link" mono/>
+        <Input label="URL destino (opcional)" value={block.linkUrl} onChange={v=>onUpdate({...block,linkUrl:v})} placeholder="Dejar vacío si no lleva link" mono/>
       </>);
       case"contador":return(<>
         <Input label="URL del timer (mmgo.io)" value={block.timerUrl} onChange={v=>onUpdate({...block,timerUrl:v})} placeholder="https://s.mmgo.io/t/DEMF/" mono/>
         <Input label="Texto" value={block.text} onChange={v=>onUpdate({...block,text:v})} placeholder="Comenzó la cuenta regresiva"/>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
-          <label style={{fontSize:10,fontWeight:700,color:"#6b7280",textTransform:"uppercase"}}>Color fondo</label>
-          <input type="color" value={block.bgColor} onChange={e=>onUpdate({...block,bgColor:e.target.value})} style={{width:28,height:22,border:"none",borderRadius:3,cursor:"pointer",background:"none"}}/>
-          <span style={{fontFamily:"monospace",fontSize:11,color:"#6b7280"}}>{block.bgColor}</span>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <label style={{fontSize:10,fontWeight:700,color:T.faint,textTransform:"uppercase",letterSpacing:"0.07em"}}>Color fondo</label>
+          <input type="color" value={block.bgColor} onChange={e=>onUpdate({...block,bgColor:e.target.value})}
+            style={{width:30,height:24,border:`1px solid ${T.line3}`,borderRadius:5,cursor:"pointer",background:"none",padding:0}}/>
+          <span style={{fontFamily:"ui-monospace,monospace",fontSize:11,color:T.dim}}>{block.bgColor}</span>
         </div>
       </>);
       case"productos":{
         const items=block.items||[];
-        const addItem=()=>onUpdate({...block,items:[...items,{imgUrl:"",linkUrl:"",alt:`Producto ${items.length+1}`}]});
-        const removeItem=(i)=>onUpdate({...block,items:items.filter((_,idx)=>idx!==i)});
         const updateItem=(i,val)=>onUpdate({...block,items:items.map((it,idx)=>idx===i?val:it)});
+        const removeItem=(i)=>onUpdate({...block,items:items.filter((_,idx)=>idx!==i)});
+        const addItem=()=>onUpdate({...block,items:[...items,{imgUrl:"",linkUrl:"",alt:`Producto ${items.length+1}`}]});
         return(<>
-          {items.map((item,i)=>(
-            <div key={i} style={{background:"#0d0f13",borderRadius:6,padding:10,marginBottom:6,border:"1px solid #1e2028"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-                <span style={{fontSize:11,fontWeight:700,color:"#f59e0b"}}>Producto {i+1}</span>
-                {items.length>1&&<button onClick={()=>removeItem(i)} style={{background:"none",border:"none",color:"#ef4444",cursor:"pointer",fontSize:16,lineHeight:1,padding:0}}>×</button>}
+          <div style={{display:"grid",gridTemplateColumns:items.length>2?"1fr 1fr 1fr":"1fr 1fr",gap:8,marginBottom:10}}>
+            {items.map((item,i)=>(
+              <div key={i}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                  <span style={{fontSize:10,fontWeight:700,color:T.faint,letterSpacing:"0.07em"}}>PROD. {i+1}</span>
+                  {items.length>1&&<button onClick={()=>removeItem(i)} style={{background:"none",border:0,color:T.faintest,cursor:"pointer",padding:0,display:"flex"}}><Ico d={I.x} size={11} w={2.6}/></button>}
+                </div>
+                <ImgUploadField value={item.imgUrl} onChange={v=>updateItem(i,{...item,imgUrl:v})} token={token} compact/>
+                <Input value={item.linkUrl} onChange={v=>updateItem(i,{...item,linkUrl:v})} placeholder="URL destino" mono/>
               </div>
-              <ImgUploadField label="Imagen" value={item.imgUrl} onChange={v=>updateItem(i,{...item,imgUrl:v})} token={token}/>
-              <Input label="URL destino" value={item.linkUrl} onChange={v=>updateItem(i,{...item,linkUrl:v})} placeholder="https://...colchon/p" mono/>
-              <Input label="Alt text" value={item.alt} onChange={v=>updateItem(i,{...item,alt:v})} placeholder="Nombre producto"/>
-            </div>
-          ))}
-          <button onClick={addItem} style={{width:"100%",padding:6,background:"transparent",border:"1px dashed #252830",borderRadius:6,color:"#4a9eff",fontSize:11,fontWeight:700,cursor:"pointer",marginTop:2}}>+ Agregar producto</button>
+            ))}
+            {items.length<3&&(
+              <button onClick={addItem}
+                style={{alignSelf:"start",marginTop:18,height:84,border:`1.5px dashed ${T.accent}`,borderRadius:9,background:T.accentSoft,color:T.accent,fontSize:10.5,fontWeight:600,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:5,width:"100%"}}>
+                <Ico d={I.plus} size={16}/>Agregar producto
+              </button>
+            )}
+          </div>
         </>);}
       default:return null;
     }
   };
+
   return(
-    <div style={{background:"#13151a",borderRadius:10,border:"1px solid #1e2028",marginBottom:10,overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",background:"#161920",borderBottom:"1px solid #1e2028"}}>
-        <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <span style={{fontSize:16}}>{typeInfo?.icon}</span>
-          <span style={{fontSize:13,fontWeight:700,color:"#e1e4ea"}}>{typeInfo?.label}</span>
-          <span style={{fontSize:10,color:"#4a4d55",fontWeight:600}}>#{index+1}</span>
+    <div {...dragProps}
+      style={{borderRadius:12,background:hidden?T.card2:T.card,
+        border:`1px solid ${expanded?T.accentLine:T.line2}`,
+        boxShadow:dragging?`0 14px 26px ${T.shadow}`:expanded?`0 0 0 1px ${T.accentSoft}`:"none",
+        opacity:dragging?.95:hidden?.6:1,transform:dragging?"rotate(-.6deg)":"none",transition:"border-color .15s"}}>
+      <div onClick={onToggle}
+        style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",cursor:"pointer"}}>
+        <span style={{cursor:"grab",display:"flex"}} onClick={e=>e.stopPropagation()}><Grip/></span>
+        <div style={{display:"flex",gap:2,flexShrink:0}}>
+          {thumbs.length?thumbs.map((src,i)=>(
+            <img key={i} src={src} alt="" style={{width:thumbs.length>1?22:46,height:34,objectFit:"cover",background:"#fff",
+              borderRadius:thumbs.length===1?5:i===0?"5px 0 0 5px":i===thumbs.length-1?"0 5px 5px 0":0}}/>
+          )):(
+            <div style={{width:46,height:34,borderRadius:5,background:`repeating-linear-gradient(45deg,${T.sk},${T.sk} 4px,${T.card2} 4px,${T.card2} 8px)`}}/>
+          )}
         </div>
-        <div style={{display:"flex",gap:4,alignItems:"center"}}>
-          <button onClick={()=>onMove(-1)} disabled={index===0} style={{background:"none",border:"none",color:index===0?"#2a2d35":"#6b7280",cursor:index===0?"default":"pointer",fontSize:14,padding:"2px 5px"}}>▲</button>
-          <button onClick={()=>onMove(1)} disabled={index===total-1} style={{background:"none",border:"none",color:index===total-1?"#2a2d35":"#6b7280",cursor:index===total-1?"default":"pointer",fontSize:14,padding:"2px 5px"}}>▼</button>
-          <button onClick={onRemove} style={{background:"none",border:"none",color:"#ef4444",cursor:"pointer",fontSize:18,padding:"0 4px",lineHeight:1,marginLeft:4}}>×</button>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:7}}>
+            <span style={{fontSize:12.5,fontWeight:600,color:T.text}}>{typeInfo?.label.replace(" 100%","")}</span>
+            <span style={{fontSize:10,fontWeight:700,letterSpacing:".04em",color:hidden?T.dim:badge.color,background:hidden?T.chip:`${badge.color}22`,padding:"2px 5px",borderRadius:4}}>
+              {hidden?"OCULTO":badge.label}
+            </span>
+          </div>
+          <div style={{fontSize:11,color:T.faint,marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+            {hidden?"No se incluye en el envío":blockSummary(block)}
+          </div>
+        </div>
+        <div style={{display:"flex",gap:1}} onClick={e=>e.stopPropagation()}>
+          <IconButton title="Duplicar" onClick={onDuplicate}><Ico d={I.copy}/></IconButton>
+          <IconButton title={hidden?"Mostrar":"Ocultar"} onClick={onToggleHidden}><Ico d={hidden?I.eyeOff:I.eye}/></IconButton>
+          <IconButton title="Eliminar" onClick={onRemove} danger><Ico d={I.trash}/></IconButton>
+          <IconButton title={expanded?"Colapsar":"Editar"} onClick={onToggle}><Ico d={expanded?I.chevronUp:I.chevronDown} w={2.4}/></IconButton>
         </div>
       </div>
-      <div style={{padding:"12px 14px"}}>{renderFields()}</div>
+      {expanded&&<div style={{padding:"14px 12px",borderTop:`1px solid ${T.line}`}}>{renderFields()}</div>}
     </div>
   );
 }
 
 // ─── Main App ───
+const DRAFT_KEY="eb-draft-v1";
+const THEME_KEY="eb-theme";
+
 function App(){
   const[token,setToken]=useState(getStoredToken);
   const[showSetup,setShowSetup]=useState(!getStoredToken());
@@ -795,104 +935,174 @@ function App(){
   const[setupError,setSetupError]=useState("");
   const[showTokenField,setShowTokenField]=useState(false);
 
-  const[selectedBrand,setSelectedBrand]=useState("spring");
-  const[campaignName,setCampaignName]=useState("");
-  const[preheader,setPreheader]=useState("");
-  const[blocks,setBlocks]=useState([]);
-  const[generated,setGenerated]=useState("");
-  const[copied,setCopied]=useState(false);
-  const[showPreview,setShowPreview]=useState(true);
-  const[showAddMenu,setShowAddMenu]=useState(false);
+  const draft=(()=>{try{return JSON.parse(localStorage.getItem(DRAFT_KEY))||{}}catch(e){return{}}})();
 
-  // ─── Setup handler ───
+  const[theme,setTheme]=useState(()=>localStorage.getItem(THEME_KEY)||"dark");
+  const[selectedBrand,setSelectedBrand]=useState(draft.selectedBrand||"spring");
+  const[campaignName,setCampaignName]=useState(draft.campaignName||"");
+  const[preheader,setPreheader]=useState(draft.preheader||"");
+  const[blocks,setBlocks]=useState(draft.blocks||[]);
+  const[expandedId,setExpandedId]=useState(null);
+  const[showBrandMenu,setShowBrandMenu]=useState(false);
+  const[showCampaign,setShowCampaign]=useState(false);
+  const[device,setDevice]=useState("desktop");
+  const[viewCode,setViewCode]=useState(false);
+  const[copied,setCopied]=useState(false);
+  const[savedAt,setSavedAt]=useState(null);
+  const[tick,setTick]=useState(0);
+  const[dragIndex,setDragIndex]=useState(null);
+  const[dropIndex,setDropIndex]=useState(null);
+
+  const history=useRef({past:[],future:[]});
+  const skipHistory=useRef(false);
+
+  useEffect(()=>{document.body.dataset.theme=theme;localStorage.setItem(THEME_KEY,theme);},[theme]);
+
+  // autosave
+  useEffect(()=>{
+    const t=setTimeout(()=>{
+      localStorage.setItem(DRAFT_KEY,JSON.stringify({selectedBrand,campaignName,preheader,blocks}));
+      setSavedAt(Date.now());
+    },600);
+    return()=>clearTimeout(t);
+  },[selectedBrand,campaignName,preheader,blocks]);
+
+  useEffect(()=>{const i=setInterval(()=>setTick(t=>t+1),5000);return()=>clearInterval(i);},[]);
+
+  const commit=(next)=>{
+    history.current.past.push(blocks);
+    if(history.current.past.length>50)history.current.past.shift();
+    history.current.future=[];
+    setBlocks(next);
+  };
+  const undo=()=>{
+    const h=history.current;
+    if(!h.past.length)return;
+    h.future.push(blocks);
+    setBlocks(h.past.pop());
+  };
+  const redo=()=>{
+    const h=history.current;
+    if(!h.future.length)return;
+    h.past.push(blocks);
+    setBlocks(h.future.pop());
+  };
+
+  useEffect(()=>{
+    const onKey=(e)=>{
+      const mod=e.metaKey||e.ctrlKey;
+      if(!mod)return;
+      if(e.key.toLowerCase()==="z"){e.preventDefault();e.shiftKey?redo():undo();}
+    };
+    window.addEventListener("keydown",onKey);
+    return()=>window.removeEventListener("keydown",onKey);
+  });
+
+  // ─── Setup ───
   const handleConnect=async()=>{
     const t=setupToken.trim();
     if(!t.startsWith("ghp_")){setSetupError("El token debe empezar con ghp_");return;}
     setSetupTesting(true);setSetupError("");
     try{
       const res=await fetch(`https://api.github.com/repos/${GH_REPO}`,{headers:{"Authorization":`token ${t}`}});
-      if(res.ok){
-        storeToken(t);
-        setToken(t);
-        setShowSetup(false);
-      } else {
-        setSetupError("Token inválido o sin acceso al repo devser8/email-assets");
-      }
+      if(res.ok){storeToken(t);setToken(t);setShowSetup(false);}
+      else setSetupError("Token inválido o sin acceso al repo devser8/email-assets");
     }catch(e){setSetupError("Error de conexión");}
     finally{setSetupTesting(false);}
   };
-
   const handleLogout=()=>{clearStoredToken();setToken("");setSetupToken("");setShowSetup(true);};
 
-  // ─── Builder handlers ───
-  const addBlock=(type)=>{setBlocks([...blocks,createBlock(type)]);setShowAddMenu(false);};
-  const removeBlock=(i)=>setBlocks(blocks.filter((_,idx)=>idx!==i));
-  const updateBlock=(i,updated)=>setBlocks(blocks.map((b,idx)=>idx===i?updated:b));
-  const moveBlock=(i,dir)=>{const j=i+dir;if(j<0||j>=blocks.length)return;const c=[...blocks];[c[i],c[j]]=[c[j],c[i]];setBlocks(c);};
+  // ─── Block handlers ───
+  const addBlock=(type)=>{const b=createBlock(type);commit([...blocks,b]);setExpandedId(b.id);};
+  const removeBlock=(i)=>commit(blocks.filter((_,idx)=>idx!==i));
+  const duplicateBlock=(i)=>{
+    const copy=JSON.parse(JSON.stringify(blocks[i]));copy.id=uid();
+    const next=[...blocks];next.splice(i+1,0,copy);commit(next);
+  };
+  const updateBlock=(i,updated)=>{skipHistory.current=true;setBlocks(blocks.map((b,idx)=>idx===i?updated:b));};
+  const toggleHidden=(i)=>commit(blocks.map((b,idx)=>idx===i?{...b,hidden:!b.hidden}:b));
+  const moveBlock=(from,to)=>{
+    if(to<0||to>blocks.length||from===to)return;
+    const next=[...blocks];
+    const[item]=next.splice(from,1);
+    next.splice(from<to?to-1:to,0,item);
+    commit(next);
+  };
 
-  const handleGenerate=useCallback(()=>{
-    setGenerated(generateFullHTML(campaignName,preheader,blocks,selectedBrand));
-    setShowPreview(true);setCopied(false);
-  },[campaignName,preheader,blocks,selectedBrand]);
+  const visibleBlocks=blocks.filter(b=>!b.hidden);
+  const generated=useMemo(
+    ()=>generateFullHTML(campaignName,preheader,visibleBlocks,selectedBrand),
+    [campaignName,preheader,blocks,selectedBrand]
+  );
+  const sizeKB=Math.max(1,Math.round(new Blob([generated]).size/1024));
+  const warnings=[];
+  blocks.forEach((b,i)=>{
+    if((b.type==="banner"||b.type==="cenefa")&&!b.imgUrl&&!b.hidden)warnings.push(`Bloque #${i+1}: falta imagen`);
+    if(b.type==="banner"&&b.imgUrl&&!b.alt&&!b.hidden)warnings.push(`Bloque #${i+1}: falta alt`);
+    if(b.type==="productos"&&!b.hidden&&(b.items||[]).some(p=>!p.imgUrl))warnings.push(`Bloque #${i+1}: producto sin imagen`);
+    if(b.type==="contador"&&!b.timerUrl&&!b.hidden)warnings.push(`Bloque #${i+1}: falta URL del timer`);
+  });
 
-  const handleCopy=useCallback(()=>{
-    navigator.clipboard.writeText(generated).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2500);});
-  },[generated]);
-
-  const handleDownload=useCallback(()=>{
+  const handleCopy=()=>{navigator.clipboard.writeText(generated).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2200);});};
+  const handleDownload=()=>{
     const blob=new Blob([generated],{type:"text/html"});
     const url=URL.createObjectURL(blob);
     const a=document.createElement("a");
     a.href=url;a.download=`${campaignName||"email"}.html`;a.click();
     URL.revokeObjectURL(url);
-  },[generated,campaignName]);
+  };
 
-  const canGenerate=campaignName&&blocks.length>0;
+  const savedLabel=(()=>{
+    if(!savedAt)return "Borrador local";
+    const s=Math.round((Date.now()-savedAt)/1000);
+    return s<5?"Guardado":`Guardado hace ${s<60?s+" s":Math.round(s/60)+" min"}`;
+  })();
 
   // ─── SETUP SCREEN ───
   if(showSetup){
     return(
-      <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20}} className="fade-in">
+      <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:T.bg}} className="fade-in">
         <div style={{maxWidth:420,width:"100%"}}>
           <div style={{textAlign:"center",marginBottom:24}}>
-            <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,#4a9eff,#7c5cfc)",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:12}}>✉</div>
-            <h1 style={{fontSize:22,fontWeight:800,margin:"0 0 4px",letterSpacing:"-0.02em"}}>Email Builder</h1>
-            <p style={{fontSize:12,color:"#6b7280",margin:0}}>Configuración inicial (solo una vez por navegador)</p>
+            <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(145deg,#4a9eff,#2f6fd0)",display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:12,color:"#fff"}}>
+              <Ico d={I.mail} size={22}/>
+            </div>
+            <h1 style={{fontSize:22,fontWeight:800,margin:"0 0 4px",letterSpacing:"-0.02em",color:T.text}}>Email Builder</h1>
+            <p style={{fontSize:12,color:T.faint,margin:0}}>Configuración inicial (solo una vez por navegador)</p>
           </div>
-          <div style={{background:"#13151a",borderRadius:12,padding:20,border:"1px solid #1e2028"}}>
-            <h3 style={{fontSize:14,fontWeight:700,margin:"0 0 12px",color:"#f59e0b"}}>🔑 Token de GitHub</h3>
-            <p style={{fontSize:11,color:"#6b7280",lineHeight:1.6,marginBottom:14}}>
+          <div style={{background:T.card,borderRadius:12,padding:20,border:`1px solid ${T.line2}`}}>
+            <h3 style={{fontSize:13,fontWeight:700,margin:"0 0 12px",color:T.text,display:"flex",alignItems:"center",gap:7}}><Ico d={I.key}/> Token de GitHub</h3>
+            <p style={{fontSize:11.5,color:T.faint,lineHeight:1.6,marginBottom:14}}>
               Para subir imágenes al repo necesitas un Personal Access Token. Se guarda solo en tu navegador.
             </p>
-            <div style={{background:"#1a1d24",borderRadius:8,padding:12,marginBottom:14,fontSize:10,color:"#6b7280",lineHeight:1.8,border:"1px solid #252830"}}>
-              <strong style={{color:"#4a9eff"}}>Cómo obtenerlo:</strong><br/>
-              1. <strong style={{color:"#e1e4ea"}}>github.com → tu perfil → Settings</strong><br/>
-              2. <strong style={{color:"#e1e4ea"}}>Developer Settings → Personal Access Tokens → Tokens (classic)</strong><br/>
-              3. <strong style={{color:"#e1e4ea"}}>Generate new token</strong> → nombre: "email-builder" → marcar <strong style={{color:"#e1e4ea"}}>repo</strong><br/>
-              4. Copiar y pegar aquí ↓
+            <div style={{background:T.card2,borderRadius:8,padding:12,marginBottom:14,fontSize:10.5,color:T.faint,lineHeight:1.9,border:`1px solid ${T.line}`}}>
+              <strong style={{color:T.accent}}>Cómo obtenerlo:</strong><br/>
+              1. github.com → Settings<br/>
+              2. Developer Settings → Personal Access Tokens → Tokens (classic)<br/>
+              3. Generate new token → scope <strong style={{color:T.text}}>repo</strong><br/>
+              4. Pégalo aquí ↓
             </div>
             <div style={{marginBottom:12}}>
-              <label style={{display:"block",fontSize:10,fontWeight:700,color:"#6b7280",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>Token</label>
+              <label style={{display:"block",fontSize:10,fontWeight:700,color:T.faint,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:5}}>Token</label>
               <div style={{display:"flex",gap:6}}>
                 <input type={showTokenField?"text":"password"} value={setupToken} onChange={e=>setSetupToken(e.target.value)}
-                  placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                  onKeyDown={e=>{if(e.key==="Enter")handleConnect();}}
-                  style={{flex:1,padding:"9px 12px",fontSize:13,fontFamily:"'SF Mono',monospace",border:"1px solid #252830",borderRadius:8,background:"#0d0f13",color:"#e1e4ea",outline:"none",boxSizing:"border-box"}}
-                />
+                  placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" onKeyDown={e=>{if(e.key==="Enter")handleConnect();}}
+                  style={{flex:1,height:38,padding:"0 12px",fontSize:13,fontFamily:"ui-monospace,monospace",border:`1px solid ${T.line3}`,borderRadius:8,background:T.input,color:T.text,outline:"none",boxSizing:"border-box"}}/>
                 <button onClick={()=>setShowTokenField(!showTokenField)}
-                  style={{padding:"0 12px",border:"1px solid #252830",borderRadius:8,background:"#1a1d24",color:"#6b7280",fontSize:13,cursor:"pointer",flexShrink:0}}>
-                  {showTokenField?"🙈":"👁"}
+                  style={{width:42,border:`1px solid ${T.line3}`,borderRadius:8,background:T.card2,color:T.faint,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  <Ico d={showTokenField?I.eyeOff:I.eye}/>
                 </button>
               </div>
             </div>
             {setupError&&<div style={{fontSize:11,color:"#ef4444",marginBottom:10,fontWeight:600}}>{setupError}</div>}
             <button onClick={handleConnect} disabled={!setupToken||setupTesting}
-              style={{width:"100%",padding:"12px",border:"none",borderRadius:8,fontSize:14,fontWeight:800,cursor:setupToken&&!setupTesting?"pointer":"not-allowed",
-                background:setupToken?"linear-gradient(135deg,#4a9eff,#7c5cfc)":"#1e2028",color:setupToken?"#fff":"#3a3d45",transition:"all 0.3s"}}>
-              {setupTesting?"Verificando...":"Conectar →"}
+              style={{width:"100%",height:42,border:"none",borderRadius:9,fontSize:14,fontWeight:800,
+                cursor:setupToken&&!setupTesting?"pointer":"not-allowed",
+                background:setupToken?T.accent:T.chip,color:setupToken?T.accentFg:T.faintest}}>
+              {setupTesting?"Verificando…":"Conectar →"}
             </button>
-            <p style={{fontSize:9,color:"#3a3d45",marginTop:10,textAlign:"center",lineHeight:1.5}}>
-              El token se guarda en localStorage. No se envía a ningún lugar excepto la API de GitHub.
+            <p style={{fontSize:9.5,color:T.faintest,marginTop:10,textAlign:"center",lineHeight:1.5}}>
+              Se guarda en localStorage. Solo se envía a la API de GitHub.
             </p>
           </div>
         </div>
@@ -900,145 +1110,260 @@ function App(){
     );
   }
 
-  // ─── BUILDER SCREEN ───
+  const brand=BRANDS[selectedBrand];
+
+  // ─── BUILDER ───
   return(
-    <div style={{height:"100vh",display:"flex",flexDirection:"column"}} className="fade-in">
-      {/* Header */}
-      <div style={{background:"#0d0f13",borderBottom:"1px solid #1e2028",padding:"14px 20px",flexShrink:0}}>
-        <div style={{display:"flex",alignItems:"center",gap:10,maxWidth:1200,margin:"0 auto"}}>
-          <div style={{width:32,height:32,borderRadius:8,background:"linear-gradient(135deg,#4a9eff,#7c5cfc)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>✉</div>
-          <div style={{flex:1}}>
-            <h1 style={{margin:0,fontSize:17,fontWeight:800,letterSpacing:"-0.02em"}}>Email Builder</h1>
-            <p style={{margin:0,fontSize:10,color:"#4a4d55"}}>Arma tu mailing bloque a bloque — <span style={{color:BRANDS[selectedBrand]?.color||"#4a9eff",fontWeight:700}}>{BRANDS[selectedBrand]?.label||"Marca"}</span></p>
+    <div style={{height:"100vh",display:"flex",flexDirection:"column",background:T.bg,color:T.text,fontSize:13}}>
+
+      {/* Top bar */}
+      <div style={{display:"flex",alignItems:"center",gap:12,padding:"0 16px",height:52,background:T.chrome,borderBottom:`1px solid ${T.line}`,flexShrink:0,position:"relative",zIndex:20,minWidth:0,overflowX:"auto",overflowY:"visible"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
+          <div style={{width:26,height:26,borderRadius:7,background:"linear-gradient(145deg,#4a9eff,#2f6fd0)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>
+            <Ico d={I.mail} size={14}/>
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:6}}>
-            <span style={{fontSize:9,color:"#10b981",fontWeight:700,background:"#10b98118",padding:"4px 10px",borderRadius:20}}>✓ GitHub</span>
-            <a href={`https://github.com/${GH_REPO}/tree/main/img`} target="_blank" rel="noopener"
-              style={{fontSize:9,color:"#6b7280",fontWeight:600,textDecoration:"none",background:"#1a1d24",padding:"4px 10px",borderRadius:20,border:"1px solid #252830"}}>📂 Imágenes</a>
-            <button onClick={handleLogout} title="Cambiar token"
-              style={{fontSize:9,color:"#6b7280",background:"#1a1d24",padding:"4px 8px",borderRadius:20,border:"1px solid #252830",cursor:"pointer"}}>🔑</button>
-          </div>
+          <span style={{fontWeight:700,fontSize:14,letterSpacing:"-0.01em"}}>Email Builder</span>
         </div>
+
+        <div style={{width:1,height:22,background:T.line2,flexShrink:0}}/>
+
+        {/* Brand */}
+        <div style={{position:"relative",flexShrink:0}}>
+          <button onClick={()=>setShowBrandMenu(!showBrandMenu)}
+            style={{display:"flex",alignItems:"center",gap:9,height:32,padding:"0 10px 0 8px",border:`1px solid ${T.line3}`,borderRadius:8,background:T.card,color:T.text,fontSize:13,fontWeight:600,cursor:"pointer"}}>
+            <span style={{width:8,height:8,borderRadius:"50%",background:brand?.color}}/>
+            {brand?.label}
+            {brand?.pending&&<span style={{fontSize:9.5,color:"#f59e0b",fontWeight:700}}>pendiente</span>}
+            <span style={{opacity:.55,display:"flex"}}><Ico d={I.chevronDown} size={12} w={2.5}/></span>
+          </button>
+          {showBrandMenu&&(
+            <div style={{position:"absolute",top:38,left:0,width:240,background:T.card,border:`1px solid ${T.line3}`,borderRadius:10,padding:6,boxShadow:`0 14px 34px ${T.shadow}`,display:"flex",flexDirection:"column",gap:2}}>
+              {Object.entries(BRANDS).map(([key,b])=>(
+                <button key={key} onClick={()=>{setSelectedBrand(key);setShowBrandMenu(false);}}
+                  style={{display:"flex",alignItems:"center",gap:9,height:32,padding:"0 8px",border:0,borderRadius:7,
+                    background:key===selectedBrand?T.hover:"transparent",color:T.text,fontSize:12.5,fontWeight:600,cursor:"pointer",textAlign:"left"}}>
+                  <span style={{width:8,height:8,borderRadius:"50%",background:b.color}}/>
+                  <span style={{flex:1}}>{b.label}</span>
+                  {b.pending&&<span style={{fontSize:9.5,color:"#f59e0b",fontWeight:700}}>pendiente</span>}
+                  {key===selectedBrand&&<span style={{color:T.accent,display:"flex"}}><Ico d={I.check} size={12}/></span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Campaign summary */}
+        <div style={{position:"relative",flex:"0 1 420px",minWidth:240}}>
+          <button onClick={()=>setShowCampaign(!showCampaign)}
+            style={{display:"flex",alignItems:"center",gap:8,height:32,padding:"0 12px",borderRadius:8,background:T.card2,border:`1px solid ${T.line}`,cursor:"pointer",width:"100%",minWidth:0,overflow:"hidden"}}>
+            <span style={{color:T.faintest,display:"flex"}}><Ico d={I.link}/></span>
+            <span style={{fontFamily:"ui-monospace,monospace",fontSize:12,color:campaignName?T.dim:T.faintest,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+              {campaignName||"sin-nombre-campaña"}
+            </span>
+            <span style={{color:T.faintest,flexShrink:0}}>·</span>
+            <span style={{color:T.faint,fontSize:12,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",flex:"1 1 auto",minWidth:0}}>
+              {preheader?`Preheader: “${preheader}”`:"Sin preheader"}
+            </span>
+            <span style={{color:T.accent,display:"flex",flexShrink:0}}><Ico d={I.pencil} size={12}/></span>
+          </button>
+          {showCampaign&&(
+            <div style={{position:"absolute",top:38,left:0,width:360,background:T.card,border:`1px solid ${T.line3}`,borderRadius:10,padding:14,boxShadow:`0 14px 34px ${T.shadow}`}}>
+              <Input label="Nombre campaña (slug UTM)" value={campaignName} onChange={setCampaignName} placeholder="gran-sale-190126" mono/>
+              <div style={{background:T.input,borderRadius:6,padding:"7px 10px",fontSize:10,color:T.faintest,fontFamily:"ui-monospace,monospace",wordBreak:"break-all",marginBottom:10}}>
+                utm_source=mailing&utm_medium=mailing&utm_campaign=<span style={{color:T.accent}}>{campaignName||"…"}</span>
+              </div>
+              <Input label="Preheader (opcional)" value={preheader} onChange={setPreheader} placeholder="Texto oculto en bandeja de entrada"/>
+              <button onClick={()=>setShowCampaign(false)}
+                style={{width:"100%",height:32,border:0,borderRadius:8,background:T.accent,color:T.accentFg,fontSize:12.5,fontWeight:700,cursor:"pointer"}}>Listo</button>
+            </div>
+          )}
+        </div>
+
+        <div style={{flex:1}}/>
+
+        <div style={{display:"flex",alignItems:"center",gap:6,height:26,padding:"0 9px",borderRadius:999,background:"rgba(16,185,129,.10)",border:"1px solid rgba(16,185,129,.28)",color:"#0f9d6e",fontSize:11.5,fontWeight:600,flexShrink:0,whiteSpace:"nowrap"}}>
+          <span style={{width:6,height:6,borderRadius:"50%",background:"#10b981",flexShrink:0}}/>
+          {savedLabel}
+        </div>
+
+        {/* Theme */}
+        <div style={{display:"flex",gap:2,padding:3,background:T.card2,border:`1px solid ${T.line}`,borderRadius:9,flexShrink:0}}>
+          {[["light",I.sun,"Modo claro"],["dark",I.moon,"Modo oscuro"]].map(([k,ic,title])=>(
+            <button key={k} title={title} onClick={()=>setTheme(k)}
+              style={{width:28,height:26,display:"flex",alignItems:"center",justifyContent:"center",border:0,borderRadius:6,cursor:"pointer",
+                background:theme===k?T.hover2:"transparent",color:theme===k?T.text:T.faintest}}>
+              <Ico d={ic} size={14}/>
+            </button>
+          ))}
+        </div>
+
+        {/* Undo / redo */}
+        <div style={{display:"flex",gap:2,padding:3,background:T.card2,border:`1px solid ${T.line}`,borderRadius:9,flexShrink:0}}>
+          <IconButton title="Deshacer (⌘Z)" onClick={undo} disabled={!history.current.past.length}><Ico d={I.undo} size={14}/></IconButton>
+          <IconButton title="Rehacer (⇧⌘Z)" onClick={redo} disabled={!history.current.future.length}><Ico d={I.redo} size={14}/></IconButton>
+        </div>
+
+        <a href={`https://github.com/${GH_REPO}/tree/main/img`} target="_blank" rel="noopener" title="Imágenes en el repo"
+          style={{display:"flex",alignItems:"center",justifyContent:"center",width:32,height:32,flexShrink:0,border:`1px solid ${T.line3}`,borderRadius:8,background:T.card,color:T.faint}}>
+          <Ico d={I.folder}/>
+        </a>
+        <button onClick={handleLogout} title="Cambiar token"
+          style={{display:"flex",alignItems:"center",justifyContent:"center",width:32,height:32,flexShrink:0,border:`1px solid ${T.line3}`,borderRadius:8,background:T.card,color:T.faint,cursor:"pointer"}}>
+          <Ico d={I.key}/>
+        </button>
+
+        <button onClick={handleDownload}
+          style={{display:"flex",alignItems:"center",gap:7,height:32,padding:"0 12px",flexShrink:0,border:`1px solid ${T.line3}`,borderRadius:8,background:T.card,color:T.text,fontSize:12.5,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>
+          <span style={{color:T.dim,display:"flex"}}><Ico d={I.download}/></span> Descargar
+        </button>
+        <button onClick={handleCopy}
+          style={{display:"flex",alignItems:"center",gap:7,height:32,padding:"0 14px",flexShrink:0,border:0,borderRadius:8,whiteSpace:"nowrap",
+            background:copied?"#10b981":T.accent,color:copied?"#fff":T.accentFg,fontSize:12.5,fontWeight:700,cursor:"pointer",transition:"background .2s"}}>
+          <Ico d={copied?I.check:I.copy} w={2.4}/> {copied?"Copiado":"Copiar HTML"}
+        </button>
       </div>
 
-      <div style={{flex:1,overflow:"hidden",display:"flex",maxWidth:1200,margin:"0 auto",width:"100%"}}>
-        {/* Left: Editor */}
-        <div style={{width:"440px",flexShrink:0,overflow:"auto",padding:"14px 16px 100px",borderRight:"1px solid #1e2028"}}>
-          {/* Brand Selector */}
-          <div style={{background:"#13151a",borderRadius:10,padding:"14px 16px",marginBottom:12,border:"1px solid #1e2028"}}>
-            <h3 style={{margin:"0 0 10px",fontSize:13,fontWeight:700,color:"#e1e4ea"}}>🏷 Marca</h3>
-            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-              {Object.entries(BRANDS).map(([key,brand])=>{
-                const active=selectedBrand===key;
-                const isPending=brand.pending===true;
-                return(
-                  <button key={key} onClick={()=>{setSelectedBrand(key);setGenerated("");}}
-                    title={isPending?"Header/footer pendiente de configurar":""}
-                    style={{padding:"5px 11px",borderRadius:20,border:`1.5px solid ${active?brand.color:"#252830"}`,
-                      background:active?`${brand.color}22`:"transparent",
-                      color:active?brand.color:isPending?"#4a4d55":"#6b7280",
-                      fontSize:11,fontWeight:700,cursor:"pointer",transition:"all 0.15s",
-                      position:"relative"}}>
-                    {brand.label}
-                    {isPending&&<span title="Pendiente de configurar" style={{position:"absolute",top:-3,right:-3,width:7,height:7,borderRadius:"50%",background:"#f59e0b",border:"1.5px solid #0d0f13"}}/>}
-                  </button>
-                );
-              })}
+      <div style={{flex:1,display:"flex",minHeight:0}} onClick={()=>{setShowBrandMenu(false);}}>
+
+        {/* Left: blocks */}
+        <div style={{width:396,flexShrink:0,display:"flex",flexDirection:"column",background:T.chrome,borderRight:`1px solid ${T.line}`,minHeight:0}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px 10px"}}>
+            <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+              <span style={{fontSize:13,fontWeight:700}}>Bloques</span>
+              <span style={{fontSize:11.5,color:T.faintest}}>{blocks.length} · {sizeKB} KB aprox.</span>
             </div>
-            {BRANDS[selectedBrand]?.pending&&(
-              <p style={{margin:"8px 0 0",fontSize:10,color:"#f59e0b",lineHeight:1.5}}>
-                ⚠ Header/footer de <strong>{BRANDS[selectedBrand]?.label}</strong> pendiente — pásame el código y lo configuro.
-              </p>
+            {blocks.length>0&&(
+              <button onClick={()=>setExpandedId(null)}
+                style={{display:"flex",alignItems:"center",gap:6,height:24,padding:"0 8px",border:`1px solid ${T.line2}`,borderRadius:6,background:"transparent",color:T.dim,fontSize:11.5,fontWeight:600,cursor:"pointer"}}>
+                <Ico d={I.chevronUp} size={12}/> Colapsar todo
+              </button>
             )}
           </div>
 
-          <div style={{background:"#13151a",borderRadius:10,padding:"14px 16px",marginBottom:12,border:"1px solid #1e2028"}}>
-            <h3 style={{margin:"0 0 10px",fontSize:13,fontWeight:700,color:"#4a9eff"}}>⚡ Campaña</h3>
-            <Input label="Nombre campaña (slug UTM)" value={campaignName} onChange={setCampaignName} placeholder="gran-sale-190126" mono/>
-            <div style={{background:"#0d0f13",borderRadius:5,padding:"6px 10px",fontSize:10,color:"#4a4d55",fontFamily:"monospace",wordBreak:"break-all",marginBottom:8}}>
-              utm_source=mailing&utm_medium=mailing&utm_campaign=<span style={{color:"#4a9eff"}}>{campaignName||"..."}</span>
-            </div>
-            <Input label="Preheader (opcional)" value={preheader} onChange={setPreheader} placeholder="Texto oculto en bandeja de entrada"/>
-          </div>
+          <div style={{flex:1,overflowY:"auto",padding:"0 12px 16px",display:"flex",flexDirection:"column",gap:2}}
+            onDragOver={e=>e.preventDefault()}>
 
-          <div style={{marginBottom:12}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-              <h3 style={{margin:0,fontSize:13,fontWeight:700}}>Estructura del Email</h3>
-              <span style={{fontSize:11,color:"#4a4d55"}}>{blocks.length} bloque{blocks.length!==1?"s":""}</span>
-            </div>
             {blocks.length===0&&(
-              <div style={{textAlign:"center",padding:"28px 20px",color:"#3a3d45",border:"2px dashed #1e2028",borderRadius:10}}>
-                <p style={{fontSize:28,margin:"0 0 8px"}}>📭</p>
-                <p style={{fontSize:13,margin:0,fontWeight:600}}>Agrega bloques para armar tu email</p>
-                <p style={{fontSize:11,margin:"4px 0 0",color:"#2a2d35"}}>Banner, productos, contador, cenefa...</p>
+              <div style={{textAlign:"center",padding:"34px 20px",color:T.faint,border:`1.5px dashed ${T.line2}`,borderRadius:12,marginBottom:8}}>
+                <p style={{fontSize:13,margin:0,fontWeight:600,color:T.dim}}>Tu email está vacío</p>
+                <p style={{fontSize:11.5,margin:"4px 0 0",color:T.faintest}}>Elige un bloque abajo para empezar</p>
               </div>
             )}
-            {blocks.map((block,i)=>(
-              <BlockCard key={block.id} block={block} index={i} total={blocks.length} token={token}
-                onUpdate={(b)=>updateBlock(i,b)} onRemove={()=>removeBlock(i)} onMove={(dir)=>moveBlock(i,dir)}/>
-            ))}
-          </div>
 
-          <div style={{position:"relative",marginBottom:16}}>
-            <button onClick={()=>setShowAddMenu(!showAddMenu)}
-              style={{width:"100%",padding:"10px",border:"2px dashed #252830",borderRadius:10,background:showAddMenu?"#161920":"transparent",color:"#4a9eff",fontSize:13,fontWeight:700,cursor:"pointer",transition:"all 0.2s"}}>
-              + Agregar bloque
-            </button>
-            {showAddMenu&&(
-              <div style={{position:"absolute",top:"100%",left:0,right:0,zIndex:10,marginTop:4,background:"#161920",borderRadius:10,border:"1px solid #252830",overflow:"hidden",boxShadow:"0 8px 32px rgba(0,0,0,0.5)"}}>
+            {blocks.map((block,i)=>(
+              <React.Fragment key={block.id}>
+                <div onDragOver={e=>{e.preventDefault();setDropIndex(i);}}
+                  style={{height:14,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
+                  {dragIndex!==null&&dropIndex===i?(
+                    <>
+                      <div style={{position:"absolute",left:8,right:8,height:2,borderRadius:2,background:T.accent}}/>
+                      <div style={{position:"absolute",left:4,width:8,height:8,borderRadius:"50%",background:T.accent}}/>
+                    </>
+                  ):i>0?(
+                    <div style={{position:"absolute",left:8,right:8,height:1,background:T.line}}/>
+                  ):null}
+                </div>
+                <BlockCard
+                  block={block} index={i} token={token}
+                  expanded={expandedId===block.id}
+                  onToggle={()=>setExpandedId(expandedId===block.id?null:block.id)}
+                  onUpdate={b=>updateBlock(i,b)}
+                  onRemove={()=>removeBlock(i)}
+                  onDuplicate={()=>duplicateBlock(i)}
+                  onToggleHidden={()=>toggleHidden(i)}
+                  dragging={dragIndex===i}
+                  dragProps={{
+                    draggable:true,
+                    onDragStart:()=>{setDragIndex(i);setExpandedId(null);},
+                    onDragEnd:()=>{
+                      if(dragIndex!==null&&dropIndex!==null)moveBlock(dragIndex,dropIndex);
+                      setDragIndex(null);setDropIndex(null);
+                    },
+                    onDragOver:e=>{
+                      e.preventDefault();
+                      const r=e.currentTarget.getBoundingClientRect();
+                      setDropIndex(e.clientY<r.top+r.height/2?i:i+1);
+                    }
+                  }}
+                />
+              </React.Fragment>
+            ))}
+
+            {dragIndex!==null&&dropIndex===blocks.length&&(
+              <div style={{height:14,position:"relative"}}>
+                <div style={{position:"absolute",top:6,left:8,right:8,height:2,borderRadius:2,background:T.accent}}/>
+              </div>
+            )}
+
+            {/* Block picker */}
+            <div style={{marginTop:12,border:`1px solid ${T.line2}`,borderRadius:12,background:T.card2,padding:12,display:"flex",flexDirection:"column",gap:10}}>
+              <span style={{fontSize:10.5,fontWeight:700,letterSpacing:".07em",color:T.faint}}>AGREGAR BLOQUE</span>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                 {BLOCK_TYPES.map(bt=>(
                   <button key={bt.key} onClick={()=>addBlock(bt.key)}
-                    style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"12px 16px",background:"transparent",border:"none",borderBottom:"1px solid #1e2028",color:"#e1e4ea",cursor:"pointer",textAlign:"left"}}
-                    onMouseEnter={e=>e.currentTarget.style.background="#1e2028"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                    <span style={{fontSize:20}}>{bt.icon}</span>
-                    <div><div style={{fontSize:13,fontWeight:700}}>{bt.label}</div><div style={{fontSize:10,color:"#6b7280"}}>{bt.desc}</div></div>
+                    onMouseEnter={e=>e.currentTarget.style.borderColor="var(--accent)"}
+                    onMouseLeave={e=>e.currentTarget.style.borderColor="var(--line-3)"}
+                    style={{display:"flex",flexDirection:"column",gap:8,padding:10,border:`1px solid ${T.line3}`,borderRadius:10,background:T.card,cursor:"pointer",textAlign:"left",color:T.text,transition:"border-color .15s"}}>
+                    <div style={{height:30,borderRadius:5,background:T.sk,display:"flex",alignItems:"center",justifyContent:"center",gap:bt.key==="productos"?4:3}}>
+                      {bt.key==="banner"&&<div style={{width:"80%",height:12,borderRadius:2,background:T.sk2}}/>}
+                      {bt.key==="cenefa"&&<div style={{width:"80%",height:5,borderRadius:2,background:T.sk2}}/>}
+                      {bt.key==="productos"&&[0,1,2].map(n=><div key={n} style={{width:20,height:16,borderRadius:2,background:T.sk2}}/>)}
+                      {bt.key==="contador"&&[0,1,2].map(n=><div key={n} style={{width:14,height:16,borderRadius:2,background:T.sk2}}/>)}
+                    </div>
+                    <div>
+                      <div style={{fontSize:12,fontWeight:600}}>{bt.label.replace(" 100%","")}</div>
+                      <div style={{fontSize:10.5,color:T.faint,marginTop:1}}>{bt.desc}</div>
+                    </div>
                   </button>
                 ))}
               </div>
-            )}
+            </div>
           </div>
-
-          <button onClick={handleGenerate} disabled={!canGenerate}
-            style={{width:"100%",padding:"13px",border:"none",borderRadius:10,fontSize:14,fontWeight:800,cursor:canGenerate?"pointer":"not-allowed",
-              background:canGenerate?"linear-gradient(135deg,#4a9eff,#7c5cfc)":"#1e2028",color:canGenerate?"#fff":"#3a3d45",transition:"all 0.3s"}}>
-            {canGenerate?"Generar HTML →":"Agrega campaña + al menos 1 bloque"}
-          </button>
         </div>
 
-        {/* Right: Preview */}
-        <div style={{flex:1,overflow:"auto",background:"#0a0c10",display:"flex",flexDirection:"column"}}>
-          {generated?(
-            <>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 16px",borderBottom:"1px solid #1e2028",flexShrink:0,flexWrap:"wrap",gap:6}}>
-                <div style={{display:"flex",gap:6}}>
-                  <button onClick={()=>setShowPreview(true)} style={{padding:"4px 10px",borderRadius:5,border:"none",fontSize:11,fontWeight:700,cursor:"pointer",background:showPreview?"#4a9eff":"#1a1d24",color:showPreview?"#fff":"#6b7280"}}>Preview</button>
-                  <button onClick={()=>setShowPreview(false)} style={{padding:"4px 10px",borderRadius:5,border:"none",fontSize:11,fontWeight:700,cursor:"pointer",background:!showPreview?"#4a9eff":"#1a1d24",color:!showPreview?"#fff":"#6b7280"}}>Código</button>
-                </div>
-                <div style={{display:"flex",gap:6}}>
-                  <button onClick={handleCopy} style={{padding:"5px 14px",borderRadius:5,border:"1px solid #252830",background:copied?"#10b981":"#1a1d24",color:"#fff",fontSize:11,fontWeight:700,cursor:"pointer",transition:"all 0.2s"}}>
-                    {copied?"✓ Copiado":"Copiar HTML"}
-                  </button>
-                  <button onClick={handleDownload} style={{padding:"5px 14px",borderRadius:5,border:"1px solid #252830",background:"#1a1d24",color:"#fff",fontSize:11,fontWeight:700,cursor:"pointer"}}>
-                    ⬇ Descargar .html
-                  </button>
-                </div>
+        {/* Right: preview */}
+        <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,background:T.canvas}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,padding:"0 16px",height:44,borderBottom:`1px solid ${T.line}`,flexShrink:0}}>
+            <div style={{display:"flex",gap:2,padding:3,background:T.card2,border:`1px solid ${T.line}`,borderRadius:9}}>
+              {[["desktop",I.desktop,"Escritorio"],["mobile",I.mobile,"Móvil"]].map(([k,ic,label])=>(
+                <button key={k} onClick={()=>setDevice(k)}
+                  style={{display:"flex",alignItems:"center",gap:6,height:26,padding:"0 10px",border:0,borderRadius:6,cursor:"pointer",
+                    background:device===k?T.hover2:"transparent",color:device===k?T.text:T.dim,fontSize:12,fontWeight:600}}>
+                  <Ico d={ic}/> {label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{display:"flex",gap:2,padding:3,background:T.card2,border:`1px solid ${T.line}`,borderRadius:9}}>
+              {[[false,"Preview"],[true,"Código"]].map(([v,label])=>(
+                <button key={label} onClick={()=>setViewCode(v)}
+                  style={{height:26,padding:"0 10px",border:0,borderRadius:6,cursor:"pointer",
+                    background:viewCode===v?T.hover2:"transparent",color:viewCode===v?T.text:T.dim,fontSize:12,fontWeight:600}}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{flex:1}}/>
+
+            {warnings.length>0&&(
+              <div title={warnings.join("\n")}
+                style={{display:"flex",alignItems:"center",gap:7,height:26,padding:"0 10px",borderRadius:999,
+                  background:"rgba(245,158,11,.12)",border:"1px solid rgba(245,158,11,.28)",color:"#b45309",fontSize:11.5,fontWeight:600,cursor:"default"}}>
+                <Ico d={I.alert} size={12} w={2.2}/>
+                {warnings.length} aviso{warnings.length!==1?"s":""}: {warnings[0]}
               </div>
-              {showPreview?(
-                <div style={{flex:1,padding:16,overflow:"auto",display:"flex",justifyContent:"center"}}>
-                  <div style={{background:"#fff",borderRadius:8,overflow:"hidden",width:620,boxShadow:"0 4px 24px rgba(0,0,0,0.4)",flexShrink:0}}>
-                    <iframe srcDoc={generated} style={{width:620,height:900,border:"none",display:"block"}} title="Preview" sandbox="allow-same-origin"/>
-                  </div>
-                </div>
-              ):(
-                <pre style={{margin:0,padding:16,fontSize:11,lineHeight:1.6,color:"#8a8f98",overflow:"auto",flex:1,fontFamily:"'SF Mono','Fira Code',monospace",whiteSpace:"pre-wrap",wordBreak:"break-all"}}>{generated}</pre>
-              )}
-            </>
+            )}
+            <span style={{fontSize:11.5,color:T.faintest}}>{device==="mobile"?"375":"600"} px · {sizeKB} KB</span>
+          </div>
+
+          {viewCode?(
+            <pre style={{margin:0,padding:16,fontSize:11,lineHeight:1.6,color:T.dim,overflow:"auto",flex:1,fontFamily:"ui-monospace,'SF Mono',monospace",whiteSpace:"pre-wrap",wordBreak:"break-all"}}>{generated}</pre>
           ):(
-            <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",color:"#252830"}}>
-              <div style={{textAlign:"center"}}>
-                <p style={{fontSize:48,margin:"0 0 12px"}}>👀</p>
-                <p style={{fontSize:15,fontWeight:700,color:"#3a3d45"}}>Preview aparecerá aquí</p>
-                <p style={{fontSize:12,color:"#2a2d35"}}>Arma tu email y presiona Generar</p>
+            <div style={{flex:1,overflow:"auto",display:"flex",alignItems:"flex-start",padding:"26px 20px 40px"}}>
+              <div style={{width:device==="mobile"?375:620,margin:"0 auto",flexShrink:0,background:"#fff",borderRadius:6,overflow:"hidden",boxShadow:`0 24px 60px ${T.shadow}`}}>
+                <iframe srcDoc={generated} title="Preview" sandbox="allow-same-origin"
+                  style={{width:device==="mobile"?375:620,height:1200,border:"none",display:"block",background:"#fff"}}/>
               </div>
             </div>
           )}
